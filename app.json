@@ -4,12 +4,13 @@
     "slug": "todoList",
     "version": "1.0.0",
     "orientation": "portrait",
+    "backgroundColor": "#FFFFFF",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#FFFFFF"
     },
     "updates": {
       "fallbackToCacheTimeout": 0

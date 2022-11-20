@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "todoList",
-    "slug": "todoList",
+    "name": "One day task manager",
+    "slug": "one-day-task-manager",
     "version": "1.0.0",
     "orientation": "portrait",
     "backgroundColor": "#FFFFFF",

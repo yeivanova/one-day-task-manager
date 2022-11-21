@@ -1,11 +1,17 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  createRef,
+  useRef,
+} from "react";
 import {
   Keyboard,
   Pressable,
   StyleSheet,
   View,
   Text,
-  FlatList,
+  TouchableOpacity,
 } from "react-native";
 import * as SplashScreen from "expo-splash-screen";
 import * as Font from "expo-font";
@@ -15,6 +21,8 @@ import TaskItem from "./components/TaskItem";
 import ControlPanel from "./components/ControlPanel";
 import ActionButton from "./components/ActionButton";
 import { LinearGradient } from "expo-linear-gradient";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import DraggableFlatList from "react-native-draggable-flatlist";
 import {
   useFonts,
   RedHatDisplay_300Light,
@@ -64,8 +72,12 @@ export default function App() {
       priority: true,
     },
   ]);
+  const itemRefs = useRef(new Map());
   const [isClearButtonActive, setisClearButtonActive] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
+
+  const ref = createRef();
+  const flatListRef = useRef(null);
 
   const showModal = () => {
     setModalIsVisible(true);
@@ -101,9 +113,11 @@ export default function App() {
       }
       return task;
     });
-    
+
     setTasks(updatedTasks);
-    setisClearButtonActive(updatedTasks.some((task) => task.isCompleted === true));
+    setisClearButtonActive(
+      updatedTasks.some((task) => task.isCompleted === true)
+    );
   };
 
   useEffect(() => {
@@ -133,78 +147,98 @@ export default function App() {
     return null;
   }
 
-  return (
-    <View style={styles.page} onLayout={onLayout}>
-      <Header text="list" />
-      <View style={styles.container}>
-        <LinearGradient
-          colors={["#ffffff", "#F9F9FF"]}
-          locations={[0.0413, 0.26]}
-          style={styles.mainPanel}
-        >
-          <View style={styles.clearContainer}>
-            <Pressable
-              style={styles.clearCompetedButton}
-              onPress={clearCompetedTasks}
-              disabled={!isClearButtonActive}
-            >
-              <MaterialIcons
-                name="clear"
-                size={12}
-                color={
-                  isClearButtonActive ? "#626262" : "rgba(54, 54, 183, 0.38)"
-                }
-              />
-              <Text
-                style={[
-                  styles.clearCompetedText,
-                  isClearButtonActive && styles.clearCompetedButtonActive,
-                ]}
-              >
-                Clear completed
-              </Text>
-            </Pressable>
-            <Text style={styles.itemsCount}>
-              {tasks.filter((task) => !task.isCompleted).length} items left
-            </Text>
-          </View>
-          <FlatList
-            data={tasks}
-            renderItem={(itemData) => {
-              return (
-                <View style={styles.taskContainer}>
-                  <TaskItem
-                    onCheckboxChange={() =>
-                      setIsCompleted(!itemData.item.isCompleted)
-                    }
-                    task={itemData.item}
-                    deleteTask={() => deleteTask(itemData.item.id)}
-                    toggleTaskCompleted={toggleTaskCompleted}
-                  />
-                </View>
-              );
-            }}
-            alwaysBounceVertical={false}
-            keyExtractor={(item, index) => item.id}
+  const renderItem = ({ item, drag, isActive }) => {
+    return (
+      <TouchableOpacity
+        activeOpacity={1}
+        onLongPress={drag}
+        disabled={isActive}
+        style={isActive && styles.draggableItem}
+      >
+        <View style={styles.taskContainer}>
+          <TaskItem
+            itemRefs={itemRefs}
+            onCheckboxChange={() => setIsCompleted(!item.isCompleted)}
+            task={item}
+            deleteTask={() => deleteTask(item.id)}
+            toggleTaskCompleted={toggleTaskCompleted}
           />
-        </LinearGradient>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <View style={styles.page} onLayout={onLayout}>
+        <Header text="list" />
+        <View style={styles.container}>
+          <LinearGradient
+            colors={["#ffffff", "#F9F9FF"]}
+            locations={[0.0413, 0.26]}
+            style={styles.mainPanel}
+          >
+            <View style={styles.clearContainer}>
+              <Pressable
+                style={styles.clearCompetedButton}
+                onPress={clearCompetedTasks}
+                disabled={!isClearButtonActive}
+              >
+                <MaterialIcons
+                  name="clear"
+                  size={12}
+                  color={
+                    isClearButtonActive ? "#626262" : "rgba(54, 54, 183, 0.38)"
+                  }
+                />
+                <Text
+                  style={[
+                    styles.clearCompetedText,
+                    isClearButtonActive && styles.clearCompetedButtonActive,
+                  ]}
+                >
+                  Clear completed
+                </Text>
+              </Pressable>
+              <Text style={styles.itemsCount}>
+                {tasks.filter((task) => !task.isCompleted).length} items left
+              </Text>
+            </View>
+            <DraggableFlatList
+              ref={ref}
+              onRef={(ref) => {
+                flatListRef.current = ref;
+              }}
+              data={tasks}
+              onDragEnd={({ data }) => setTasks(data)}
+              renderItem={renderItem}
+              alwaysBounceVertical={false}
+              keyExtractor={(item, index) => item.id}
+            />
+          </LinearGradient>
+        </View>
+        <ControlPanel>
+          <ActionButton style={styles.button} onPress={showModal}>
+            <Entypo name="plus" size={30} color="#ffffff" />
+          </ActionButton>
+        </ControlPanel>
+        <NewTaskModal
+          visible={modalIsVisible}
+          tasks={tasks}
+          addTask={addTask}
+          hideModal={hideModal}
+        />
       </View>
-      <ControlPanel>
-        <ActionButton style={styles.button} onPress={showModal}>
-          <Entypo name="plus" size={30} color="#ffffff" />
-        </ActionButton>
-      </ControlPanel>
-      <NewTaskModal
-        visible={modalIsVisible}
-        tasks={tasks}
-        addTask={addTask}
-        hideModal={hideModal}
-      />
-    </View>
+    </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
+  splash: {
+    flex: 1,
+    alighItems: "center",
+    margin: 0,
+  },
   page: {
     flex: 1,
     fontFamily: "RedHatDisplay_500Medium",
@@ -213,12 +247,11 @@ const styles = StyleSheet.create({
     maxWidth: 780,
     width: "100%",
     flex: 1,
-    justifyContent: "center",
     margin: "auto",
   },
   mainPanel: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     alignContent: "stretch",
     padding: 30,
     borderRadius: 20,
@@ -261,5 +294,15 @@ const styles = StyleSheet.create({
     fontSize: 9,
     lineHeight: 12,
     color: "rgba(54, 54, 183, 0.38)",
+  },
+  draggableItem: {
+    shadowColor: "rgb(128, 109, 255)",
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+    borderRadius: 4,
   },
 });

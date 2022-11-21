@@ -1,19 +1,30 @@
-import React from "react";
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
+import { StyleSheet, Text, View, Pressable } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import Checkbox from "expo-checkbox";
 import {
   useFonts,
   RedHatDisplay_400Regular,
 } from "@expo-google-fonts/red-hat-display";
+import TimerModal from "../screens/TimerModal"
 
 const TaskItem = ({ task, deleteTask, toggleTaskCompleted }) => {
+  const [modalIsVisible, setModalIsVisible] = useState(false);
   let [fontsLoaded] = useFonts({
     RedHatDisplay_400Regular,
   });
 
   if (!fontsLoaded) {
     return null;
+  }
+
+  const hideTimerModal = () => {
+    setModalIsVisible(false);
+  };
+
+  const showTimerModal = () => {
+    setModalIsVisible(true);
   }
 
   return (
@@ -25,21 +36,41 @@ const TaskItem = ({ task, deleteTask, toggleTaskCompleted }) => {
           value={task.isCompleted}
           onValueChange={() => toggleTaskCompleted(task.id)}
         />
-        <Text style={[styles.task, task.isCompleted && styles.taskCompleted]}>
-          {task.text}
-        </Text>
+        <Pressable style={styles.taskTextWrapper} onPress={() => toggleTaskCompleted(task.id)}>
+          <Text style={[styles.task, task.isCompleted && styles.taskCompleted]}>
+            {task.text}
+          </Text>
+        </Pressable>
+        <View style={styles.iconsContainer}>
+        {task.timer && (
+          <Pressable style={styles.showTimerModal} onPress={showTimerModal} disabled={task.isCompleted}>
+            <Ionicons
+                name="ios-timer"
+                size={14}
+                style={styles.icon}
+                color={task.isCompleted ? "#B3A4FF" : "#806DFF"}
+              />
+          </Pressable>
+        )}
         {task.priority && (
           <AntDesign
             name="star"
             size={14}
-            style={styles.priority}
+            style={styles.icon}
             color="#806DFF"
           />
         )}
+        </View>
       </View>
-      <TouchableOpacity style={styles.delete} onPress={() => deleteTask()}>
+      <Pressable style={styles.delete} onPress={() => deleteTask()}>
         <AntDesign name="delete" size={14} color="#ffffff" />
-      </TouchableOpacity>
+      </Pressable>
+      <TimerModal
+        visible={modalIsVisible}
+        task={task}
+        hideModal={hideTimerModal}
+        toggleTaskCompleted={toggleTaskCompleted}
+      />
     </View>
   );
 };
@@ -76,6 +107,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#B3A4FF",
   },
+  taskTextWrapper: {
+    flex: 1,
+  },
   task: {
     maxWidth: "80%",
     color: "#000000",
@@ -87,7 +121,11 @@ const styles = StyleSheet.create({
     color: "rgba(123, 97, 255, 0.4)",
     textDecorationLine: "line-through",
   },
-  priority: {
+  icon: {
+    marginLeft: 5
+  },
+  iconsContainer: {
+    flexDirection: "row",
     marginLeft: "auto",
   },
   delete: {

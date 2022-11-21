@@ -8,10 +8,10 @@ import {
   KeyboardAvoidingView,
   TextInput,
 } from "react-native";
-import ControlPanel from "./ControlPanel";
-import Header from "./Header";
-import ActionButton from "./ActionButton";
-import DefaultButton from "./DefaultButton";
+import ControlPanel from "../components/ControlPanel";
+import Header from "../components/Header";
+import ActionButton from "../components/ActionButton";
+import DefaultButton from "../components/DefaultButton";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
@@ -20,18 +20,19 @@ import {
   RedHatDisplay_400Regular,
   RedHatDisplay_500Medium,
   RedHatDisplay_700Bold,
-  RedHatDisplay_900Black
+  RedHatDisplay_900Black,
 } from "@expo-google-fonts/red-hat-display";
 
 const NewTaskModal = (props) => {
   const [taskText, setTaskText] = useState();
   const [priority, setPriority] = useState(false);
+  const [timer, setTimer] = useState(false);
 
   let [fontsLoaded] = useFonts({
     RedHatDisplay_400Regular,
     RedHatDisplay_500Medium,
     RedHatDisplay_700Bold,
-    RedHatDisplay_900Black
+    RedHatDisplay_900Black,
   });
 
   if (!fontsLoaded) {
@@ -75,6 +76,16 @@ const NewTaskModal = (props) => {
           </KeyboardAvoidingView>
           <View style={styles.buttonsContainer}>
             <View style={styles.defaultButton}>
+              <DefaultButton onPress={() => setTimer(!timer)}>
+                <Ionicons
+                  name={timer ? "ios-timer" : "ios-timer-outline"}
+                  size={18}
+                  color="#806DFF"
+                />
+                <Text style={styles.defaultButtonText}>Add timer</Text>
+              </DefaultButton>
+            </View>
+            <View style={styles.defaultButton}>
               <DefaultButton onPress={() => setPriority(!priority)}>
                 <AntDesign
                   name={priority ? "star" : "staro"}
@@ -95,6 +106,9 @@ const NewTaskModal = (props) => {
                 id: new Date().toISOString(),
                 isCompleted: false,
                 priority: priority,
+                timer: timer,
+                timerDuration: 60,
+                repeat: 1,
               })
             }
             isDisabled={!taskText}
@@ -119,9 +133,10 @@ const styles = StyleSheet.create({
   mainPanel: {
     width: "100%",
     flex: 1,
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
     alignContent: "stretch",
-    padding: 30,
+    paddingTop: 53,
+    paddingHorizontal: 30,
     borderRadius: 20,
     borderWidth: 1,
     borderColor: "#E9E5FF",
@@ -174,9 +189,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    marginVertical: 12,
   },
   defaultButton: {
     width: "48%",
+    height: 40,
   },
   defaultButtonText: {
     fontSize: 12,

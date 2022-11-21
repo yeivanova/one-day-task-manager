@@ -37,11 +37,11 @@ const styles = StyleSheet.create({
     height: 43,
   },
   headline: {
-    fontSize: 30.7,
-    lineHeight: 43,
+    fontSize: 32,
+    lineHeight: 42,
     fontFamily: "RedHatDisplay_700Bold",
     color: "#000000",
-    marginLeft: 4,
+    marginLeft: 9,
   },
 });
 

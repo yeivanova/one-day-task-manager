@@ -11,6 +11,7 @@ import {
   StyleSheet,
   View,
   Text,
+  Image,
   TouchableOpacity,
 } from "react-native";
 import * as SplashScreen from "expo-splash-screen";
@@ -39,7 +40,6 @@ import {
   RedHatDisplay_800ExtraBold_Italic,
   RedHatDisplay_900Black_Italic,
 } from "@expo-google-fonts/red-hat-display";
-import { MaterialIcons, Entypo } from "@expo/vector-icons";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -174,6 +174,10 @@ export default function Main() {
     );
   };
 
+  let clearIcon = isClearButtonActive
+    ? require("../assets/icons/clear.png")
+    : require("../assets/icons/clear-inactive.png");
+
   return (
     <View style={styles.page} onLayout={onLayout}>
       <Header text="list" />
@@ -189,13 +193,6 @@ export default function Main() {
               onPress={clearCompetedTasks}
               disabled={!isClearButtonActive}
             >
-              <MaterialIcons
-                name="clear"
-                size={12}
-                color={
-                  isClearButtonActive ? "#626262" : "rgba(54, 54, 183, 0.38)"
-                }
-              />
               <Text
                 style={[
                   styles.clearCompetedText,
@@ -204,6 +201,7 @@ export default function Main() {
               >
                 Clear completed
               </Text>
+              <Image style={styles.clearIcon} source={clearIcon} />
             </Pressable>
             <Text style={styles.itemsCount}>
               {tasks.filter((task) => !task.isCompleted).length} items left
@@ -224,7 +222,10 @@ export default function Main() {
       </View>
       <ControlPanel>
         <ActionButton style={styles.button} onPress={showModal}>
-          <Entypo name="plus" size={30} color="#ffffff" />
+          <Image
+            style={styles.addIcon}
+            source={require("../assets/icons/add.png")}
+          />
         </ActionButton>
       </ControlPanel>
       <NewTaskModal
@@ -276,7 +277,7 @@ const styles = StyleSheet.create({
   clearContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignContent: "flex-start",
+    alignContent: "center",
     marginBottom: 14,
   },
   clearCompetedButton: {
@@ -284,8 +285,17 @@ const styles = StyleSheet.create({
     justifyContent: "start",
     alignContent: "flex-start",
   },
+  clearIcon: {
+    width: 10,
+    height: 10,
+    marginLeft: 2,
+    marginTop: 2,
+  },
   clearCompetedText: {
-    color: "rgba(54, 54, 183, 0.38)",
+    color: "#FAFBFF",
+    textShadowColor: "rgba(54, 54, 183, 0.38)",
+    textShadowOffset: { width: -0.3, height: -0.3 },
+    textShadowRadius: 0.5,
     fontSize: 8,
     lineHeight: 11,
     fontFamily: "RedHatDisplay_500Medium",
@@ -293,11 +303,22 @@ const styles = StyleSheet.create({
   },
   clearCompetedButtonActive: {
     color: "#626262",
+    textShadowColor: "rgba(54, 54, 183, 0)",
   },
   itemsCount: {
     fontSize: 9,
     lineHeight: 12,
-    color: "rgba(54, 54, 183, 0.38)",
+    color: "#FAFBFF",
+    textShadowColor: "rgba(54, 54, 183, 0.38)",
+    textShadowOffset: { width: -0.3, height: -0.3 },
+    textShadowRadius: 0.5,
+  },
+  addIcon: {
+    width: 18.5,
+    height: 18.5,
+    alignSelf: "center",
+    marginVertical: 5,
+    marginRight: 1,
   },
   draggableItem: {
     shadowColor: "rgb(128, 109, 255)",

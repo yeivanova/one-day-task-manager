@@ -3,6 +3,7 @@ import {
   StyleSheet,
   View,
   Text,
+  Image,
   Modal,
   Pressable,
   KeyboardAvoidingView,
@@ -13,8 +14,6 @@ import Header from "../components/Header";
 import ActionButton from "../components/ActionButton";
 import DefaultButton from "../components/DefaultButton";
 import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
-import { AntDesign } from "@expo/vector-icons";
 import {
   useFonts,
   RedHatDisplay_400Regular,
@@ -49,11 +48,22 @@ const NewTaskModal = (props) => {
     setTaskText("");
   };
 
+  let timerIcon = timer
+    ? require("../assets/icons/timer.png")
+    : require("../assets/icons/timer-inactive.png");
+
+  let priorityIcon = priority
+    ? require("../assets/icons/priority.png")
+    : require("../assets/icons/priority-inactive.png");
+
   return (
     <Modal visible={props.visible} animationType="fade">
       <View style={styles.page}>
         <Pressable style={styles.cancel} onPress={handleCancelTask}>
-          <Ionicons name="arrow-back-sharp" size={20} color="#806DFF" />
+          <Image
+            style={styles.backIcon}
+            source={require("../assets/icons/back.png")}
+          />
           <Text style={styles.cancelText}>Forget it</Text>
         </Pressable>
         <Header text="task" />
@@ -77,21 +87,13 @@ const NewTaskModal = (props) => {
           <View style={styles.buttonsContainer}>
             <View style={styles.defaultButton}>
               <DefaultButton onPress={() => setTimer(!timer)}>
-                <Ionicons
-                  name={timer ? "ios-timer" : "ios-timer-outline"}
-                  size={18}
-                  color="#806DFF"
-                />
+                <Image style={styles.timerIcon} source={timerIcon} />
                 <Text style={styles.defaultButtonText}>Add timer</Text>
               </DefaultButton>
             </View>
             <View style={styles.defaultButton}>
               <DefaultButton onPress={() => setPriority(!priority)}>
-                <AntDesign
-                  name={priority ? "star" : "staro"}
-                  size={18}
-                  color="#806DFF"
-                />
+                <Image style={styles.priorityIcon} source={priorityIcon} />
                 <Text style={styles.defaultButtonText}>Prioprity</Text>
               </DefaultButton>
             </View>
@@ -151,7 +153,7 @@ const styles = StyleSheet.create({
   },
   cancel: {
     flexDirection: "row",
-    justifyContent: "flex-start",
+    justifyContent: "center",
     alignContent: "center",
     position: "absolute",
     top: 25,
@@ -160,9 +162,13 @@ const styles = StyleSheet.create({
   cancelText: {
     fontFamily: "RedHatDisplay_900Black",
     fontSize: 12,
-    lineHeight: 20,
+    lineHeight: 16,
     color: "#806DFF",
     marginLeft: 6,
+  },
+  backIcon: {
+    width: 18.5,
+    height: 13.5,
   },
   inputField: {
     fontSize: 12,
@@ -200,6 +206,14 @@ const styles = StyleSheet.create({
     lineHeight: 16,
     fontFamily: "RedHatDisplay_400Regular",
     marginLeft: 10,
+  },
+  timerIcon: {
+    width: 14,
+    height: 17.5,
+  },
+  priorityIcon: {
+    width: 15.5,
+    height: 15,
   },
 });
 

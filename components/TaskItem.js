@@ -1,13 +1,11 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, Pressable } from "react-native";
-import { AntDesign } from "@expo/vector-icons";
-import { Ionicons } from "@expo/vector-icons";
+import { StyleSheet, Text, Image, View, Pressable } from "react-native";
 import Checkbox from "expo-checkbox";
 import {
   useFonts,
   RedHatDisplay_400Regular,
 } from "@expo-google-fonts/red-hat-display";
-import TimerModal from "../screens/TimerModal"
+import TimerModal from "../screens/TimerModal";
 
 const TaskItem = ({ task, deleteTask, toggleTaskCompleted }) => {
   const [modalIsVisible, setModalIsVisible] = useState(false);
@@ -25,7 +23,7 @@ const TaskItem = ({ task, deleteTask, toggleTaskCompleted }) => {
 
   const showTimerModal = () => {
     setModalIsVisible(true);
-  }
+  };
 
   return (
     <View style={styles.container}>
@@ -36,34 +34,46 @@ const TaskItem = ({ task, deleteTask, toggleTaskCompleted }) => {
           value={task.isCompleted}
           onValueChange={() => toggleTaskCompleted(task.id)}
         />
-        <Pressable style={styles.taskTextWrapper} onPress={() => toggleTaskCompleted(task.id)}>
+        <Pressable
+          style={styles.taskTextWrapper}
+          onPress={() => toggleTaskCompleted(task.id)}
+        >
           <Text style={[styles.task, task.isCompleted && styles.taskCompleted]}>
             {task.text}
           </Text>
         </Pressable>
         <View style={styles.iconsContainer}>
-        {task.timer && (
-          <Pressable style={styles.showTimerModal} onPress={showTimerModal} disabled={task.isCompleted}>
-            <Ionicons
-                name="ios-timer"
-                size={14}
-                style={styles.icon}
-                color={task.isCompleted ? "#B3A4FF" : "#806DFF"}
+          {task.timer && (
+            <Pressable
+              style={styles.showTimerModal}
+              onPress={showTimerModal}
+              disabled={task.isCompleted}
+            >
+              <Image
+                style={[
+                  styles.timerIcon,
+                  task.isCompleted && styles.iconIsInactive,
+                ]}
+                source={require("../assets/icons/timer_icon.png")}
               />
-          </Pressable>
-        )}
-        {task.priority && (
-          <AntDesign
-            name="star"
-            size={14}
-            style={styles.icon}
-            color="#806DFF"
-          />
-        )}
+            </Pressable>
+          )}
+          {task.priority && (
+            <Image
+              style={[
+                styles.priorityIcon,
+                task.isCompleted && styles.iconIsInactive,
+              ]}
+              source={require("../assets/icons/priority.png")}
+            />
+          )}
         </View>
       </View>
       <Pressable style={styles.delete} onPress={() => deleteTask()}>
-        <AntDesign name="delete" size={14} color="#ffffff" />
+        <Image
+          style={styles.deleteIcon}
+          source={require("../assets/icons/delete.png")}
+        />
       </Pressable>
       <TimerModal
         visible={modalIsVisible}
@@ -121,8 +131,18 @@ const styles = StyleSheet.create({
     color: "rgba(123, 97, 255, 0.4)",
     textDecorationLine: "line-through",
   },
-  icon: {
-    marginLeft: 5
+  timerIcon: {
+    width: 14,
+    height: 17.5,
+    marginLeft: 5,
+  },
+  priorityIcon: {
+    width: 15.5,
+    height: 15,
+    marginLeft: 5,
+  },
+  iconIsInactive: {
+    opacity: 0.5,
   },
   iconsContainer: {
     flexDirection: "row",
@@ -136,6 +156,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#806DFF",
     borderRadius: 4,
     marginLeft: 10,
+  },
+  deleteIcon: {
+    width: 12,
+    height: 12.5,
   },
 });
 

@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     lineHeight: 42,
     fontFamily: "RedHatDisplay_700Bold",
     color: "#000000",
-    marginLeft: 9,
+    marginLeft: 5,
   },
 });
 

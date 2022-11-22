@@ -1,17 +1,10 @@
 import React, { useState, useCallback } from "react";
-import {
-  StyleSheet,
-  View,
-  Text,
-  Modal,
-  Pressable,
-} from "react-native";
+import { StyleSheet, View, Text, Image, Modal, Pressable } from "react-native";
 
 import ControlPanel from "../components/ControlPanel";
 import Header from "../components/Header";
 import ActionButton from "../components/ActionButton";
 import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
 import {
   useFonts,
   RedHatDisplay_300Light,
@@ -51,13 +44,17 @@ const TimerModal = (props) => {
     reset();
   };
 
-  const timerFormat = (counter) => new Date(counter * 1000).toISOString().slice(14, 19);
+  const timerFormat = (counter) =>
+    new Date(counter * 1000).toISOString().slice(14, 19);
 
   return (
     <Modal visible={props.visible} animationType="fade">
       <View style={styles.page}>
         <Pressable style={styles.cancel} onPress={handleCancelTimer}>
-          <Ionicons name="arrow-back-sharp" size={20} color="#806DFF" />
+          <Image
+            style={styles.backIcon}
+            source={require("../assets/icons/back.png")}
+          />
           <Text style={styles.cancelText}>Forget it</Text>
         </Pressable>
         <Header text="timer" />
@@ -68,9 +65,11 @@ const TimerModal = (props) => {
         >
           <Text style={styles.taskText}>{props.task.text}</Text>
           <View style={styles.timerContainer}>
-            <Text style={styles.timerText}>
-              {timerFormat(counter)}
-            </Text>
+            <Image
+              style={styles.timerIcon}
+              source={require("../assets/icons/timer.png")}
+            />
+            <Text style={styles.timerText}> {timerFormat(counter)}</Text>
           </View>
         </LinearGradient>
         <ControlPanel>
@@ -81,15 +80,21 @@ const TimerModal = (props) => {
               if (!isRunning & isCountdownFinish()) {
                 props.toggleTaskCompleted(props.task.id);
                 handleCancelTimer();
-              };
+              }
             }}
           >
             {isRunning ? (
-              <Ionicons style={styles.buttonIcon} name="ios-pause" size={24} color="#ffffff" />
+              <Image
+                style={styles.pauseIcon}
+                source={require("../assets/icons/pause.png")}
+              />
+            ) : !isCountdownFinish() ? (
+              <Text style={styles.buttonText}>Start</Text>
             ) : (
-              !isCountdownFinish() ? (<Text style={styles.buttonText}>Start</Text>) : (
-                <Ionicons style={styles.buttonIcon} name="checkmark-done-sharp" size={24} color="#ffffff" />
-              )
+              <Image
+                style={styles.doneIcon}
+                source={require("../assets/icons/done.png")}
+              />
             )}
           </ActionButton>
         </ControlPanel>
@@ -128,7 +133,7 @@ const styles = StyleSheet.create({
   },
   cancel: {
     flexDirection: "row",
-    justifyContent: "flex-start",
+    justifyContent: "center",
     alignContent: "center",
     position: "absolute",
     top: 25,
@@ -137,9 +142,13 @@ const styles = StyleSheet.create({
   cancelText: {
     fontFamily: "RedHatDisplay_900Black",
     fontSize: 12,
-    lineHeight: 20,
+    lineHeight: 16,
     color: "#806DFF",
     marginLeft: 6,
+  },
+  backIcon: {
+    width: 18.5,
+    height: 13.5,
   },
   taskText: {
     fontSize: 16,
@@ -155,9 +164,17 @@ const styles = StyleSheet.create({
     fontFamily: "RedHatDisplay_700Bold",
     color: "#ffffff",
   },
-  buttonIcon: {
+  pauseIcon: {
+    width: 11,
+    height: 17,
     alignSelf: "center",
-    lineHeight: 30
+    marginVertical: 6,
+  },
+  doneIcon: {
+    width: 16,
+    height: 12.5,
+    alignSelf: "center",
+    marginVertical: 8,
   },
   timerContainer: {
     flex: 1,
@@ -170,7 +187,11 @@ const styles = StyleSheet.create({
     fontSize: 37,
     fontFamily: "RedHatDisplay_300Light",
     color: "#000000",
-    marginLeft: 7,
+  },
+  timerIcon: {
+    width: 37,
+    height: 46,
+    marginBottom: 9,
   },
 });
 

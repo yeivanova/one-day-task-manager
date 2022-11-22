@@ -1,6 +1,13 @@
-import React, { useState, useCallback } from "react";
-import { StyleSheet, View, Text, Image, Modal, Pressable } from "react-native";
-
+import React, { useState, useCallback, useRef } from "react";
+import {
+  StyleSheet,
+  View,
+  Text,
+  Image,
+  ImageBackground,
+  Modal,
+  Pressable,
+} from "react-native";
 import ControlPanel from "../components/ControlPanel";
 import Header from "../components/Header";
 import ActionButton from "../components/ActionButton";
@@ -14,6 +21,7 @@ import {
   RedHatDisplay_900Black,
 } from "@expo-google-fonts/red-hat-display";
 import { useClock } from "react-native-timer-hooks";
+import CircularProgress from "react-native-circular-progress-indicator";
 
 const TimerModal = (props) => {
   const [counter, start, pause, reset, isRunning] = useClock({
@@ -21,6 +29,9 @@ const TimerModal = (props) => {
     to: props.task.timerDuration,
     stopOnFinish: true,
   });
+
+  const [value, setValue] = useState(0);
+  const progressRef = useRef(null);
 
   const isCountdownFinish = useCallback(() => {
     return !isRunning && counter === props.task.timerDuration;
@@ -42,6 +53,7 @@ const TimerModal = (props) => {
     props.hideModal();
     pause();
     reset();
+    setValue(0);
   };
 
   const timerFormat = (counter) =>
@@ -65,18 +77,50 @@ const TimerModal = (props) => {
         >
           <Text style={styles.taskText}>{props.task.text}</Text>
           <View style={styles.timerContainer}>
-            <Image
-              style={styles.timerIcon}
-              source={require("../assets/icons/timer.png")}
-            />
-            <Text style={styles.timerText}> {timerFormat(counter)}</Text>
+            <ImageBackground
+              source={require("../assets/images/timer-bg.png")}
+              style={styles.bgImage}
+            >
+              <View style={styles.timerContainer}>
+                <CircularProgress
+                  ref={progressRef}
+                  radius={93}
+                  value={value}
+                  rotation={-180}
+                  progressValueColor={"rgba(0, 0, 0, 0)"}
+                  activeStrokeWidth={6}
+                  inActiveStrokeWidth={15}
+                  activeStrokeColor={"#806DFF"}
+                  inActiveStrokeColor={"rgba(0, 0, 0, 0)"}
+                  inActiveStrokeOpacity={0.5}
+                  duration={props.task.timerDuration * 1000 + 1000}
+                  onAnimationComplete={() => {
+                    console.log("timer finished");
+                  }}
+                />
+                <View style={styles.timerInner}>
+                  <Image
+                    style={styles.timerIcon}
+                    source={require("../assets/icons/timer.png")}
+                  />
+                  <Text style={styles.timerText}> {timerFormat(counter)}</Text>
+                </View>
+              </View>
+            </ImageBackground>
           </View>
         </LinearGradient>
         <ControlPanel>
           <ActionButton
             style={styles.button}
             onPress={() => {
-              isRunning ? pause() : start();
+              if (isRunning) {
+                progressRef.current.pause();
+                pause();
+              } else {
+                setValue(100);
+                progressRef.current.play();
+                start();
+              }
               if (!isRunning & isCountdownFinish()) {
                 props.toggleTaskCompleted(props.task.id);
                 handleCancelTimer();
@@ -150,12 +194,15 @@ const styles = StyleSheet.create({
     width: 18.5,
     height: 13.5,
   },
+  bgImage: {
+    width: 239,
+    height: 239,
+  },
   taskText: {
     fontSize: 16,
     lineHeight: 21,
     fontFamily: "RedHatDisplay_400Regular",
     textAlign: "center",
-    marginBottom: 29,
   },
   buttonText: {
     alignSelf: "center",
@@ -176,12 +223,21 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     marginVertical: 8,
   },
-  timerContainer: {
+  timerWrapper: {
     flex: 1,
-    padding: 5,
-    borderRadius: 5,
     alignItems: "center",
     justifyContent: "center",
+  },
+  timerContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  timerInner: {
+    flex: 1,
+    alignItems: "stretch",
+    justifyContent: "stretch",
+    position: "absolute",
   },
   timerText: {
     fontSize: 37,
@@ -192,6 +248,7 @@ const styles = StyleSheet.create({
     width: 37,
     height: 46,
     marginBottom: 9,
+    alignSelf: "center",
   },
 });
 

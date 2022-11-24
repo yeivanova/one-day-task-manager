@@ -6,13 +6,15 @@ import {
   Image,
   Modal,
   Pressable,
-  KeyboardAvoidingView,
-  TextInput,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
 import ControlPanel from "../components/ControlPanel";
 import Header from "../components/Header";
 import ActionButton from "../components/ActionButton";
 import DefaultButton from "../components/DefaultButton";
+import Input from "../components/Input";
+import NumberInput from "../components/NumberInput";
 import { LinearGradient } from "expo-linear-gradient";
 import {
   useFonts,
@@ -26,6 +28,8 @@ const NewTaskModal = (props) => {
   const [taskText, setTaskText] = useState();
   const [priority, setPriority] = useState(false);
   const [timer, setTimer] = useState(false);
+  const [timerDurationMinutes, setTimerDurationMinutes] = useState(0);
+  const [timerDurationSeconds, setTimerDurationSeconds] = useState(0);
 
   let [fontsLoaded] = useFonts({
     RedHatDisplay_400Regular,
@@ -48,6 +52,34 @@ const NewTaskModal = (props) => {
     setTaskText("");
   };
 
+  const handleMinutes = (value) => {
+    number = parseInt(value);
+    if (value.length === 0) {
+      setTimerDurationMinutes("");
+    } else {
+      setTimerDurationMinutes(number);
+      if (number >= 59) {
+        setTimerDurationMinutes(59);
+      } else if (number < 0) {
+        setTimerDurationMinutes(0);
+      } else setTimerDurationMinutes(number);
+    }
+  };
+
+  const handleSeconds = (value) => {
+    number = parseInt(value);
+    if (value.length === 0) {
+      setTimerDurationSeconds("");
+    } else {
+      setTimerDurationSeconds(number);
+      if (number >= 59) {
+        setTimerDurationSeconds(59);
+      } else if (number < 0) {
+        setTimerDurationSeconds(0);
+      } else setTimerDurationSeconds(number);
+    }
+  };
+
   let timerIcon = timer
     ? require("../assets/icons/timer.png")
     : require("../assets/icons/timer-inactive.png");
@@ -58,67 +90,101 @@ const NewTaskModal = (props) => {
 
   return (
     <Modal visible={props.visible} animationType="fade">
-      <View style={styles.page}>
-        <Pressable style={styles.cancel} onPress={handleCancelTask}>
-          <Image
-            style={styles.backIcon}
-            source={require("../assets/icons/back.png")}
-          />
-          <Text style={styles.cancelText}>Forget it</Text>
-        </Pressable>
-        <Header text="task" />
-        <LinearGradient
-          colors={["#ffffff", "#F9F9FF"]}
-          locations={[0.0413, 0.26]}
-          style={styles.mainPanel}
-        >
-          <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={styles.container}
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <View style={styles.page}>
+          <Pressable style={styles.cancel} onPress={handleCancelTask}>
+            <Image
+              style={styles.backIcon}
+              source={require("../assets/icons/back.png")}
+            />
+            <Text style={styles.cancelText}>Forget it</Text>
+          </Pressable>
+          <Header text="task" />
+          <LinearGradient
+            colors={["#ffffff", "#F9F9FF"]}
+            locations={[0.0413, 0.26]}
+            style={styles.mainPanel}
           >
-            <TextInput
-              style={styles.inputField}
+            <Input
               value={taskText || ""}
               onChangeText={(text) => setTaskText(text)}
               placeholder={"What needs to be done?"}
-              placeholderTextColor={"#585A66"}
             />
-          </KeyboardAvoidingView>
-          <View style={styles.buttonsContainer}>
-            <View style={styles.defaultButton}>
-              <DefaultButton onPress={() => setTimer(!timer)}>
-                <Image style={styles.timerIcon} source={timerIcon} />
-                <Text style={styles.defaultButtonText}>Add timer</Text>
-              </DefaultButton>
+            <View style={styles.row}>
+              <View style={styles.cell}>
+                <DefaultButton onPress={() => setPriority(!priority)}>
+                  <Image style={styles.priorityIcon} source={priorityIcon} />
+                  <Text style={styles.defaultButtonText}>Prioprity</Text>
+                </DefaultButton>
+              </View>
+              <View
+                style={[
+                  styles.cell,
+                  styles.note,
+                  priority && styles.noteIsActive,
+                ]}
+              >
+                <Image
+                  style={styles.noteIcon}
+                  source={require("../assets/icons/note.png")}
+                />
+                <Text style={styles.noteText}>
+                  This task will not be shuffled
+                </Text>
+              </View>
             </View>
-            <View style={styles.defaultButton}>
-              <DefaultButton onPress={() => setPriority(!priority)}>
-                <Image style={styles.priorityIcon} source={priorityIcon} />
-                <Text style={styles.defaultButtonText}>Prioprity</Text>
-              </DefaultButton>
+            <View style={styles.row}>
+              <View style={styles.cell}>
+                <DefaultButton onPress={() => setTimer(!timer)}>
+                  <Image style={styles.timerIcon} source={timerIcon} />
+                  <Text style={styles.defaultButtonText}>Add timer</Text>
+                </DefaultButton>
+              </View>
+              <View style={styles.timeField}>
+                <NumberInput
+                  editable={timer}
+                  maxLength={2}
+                  value={timerDurationMinutes}
+                  onChangeHandle={handleMinutes}
+                  setValue={setTimerDurationMinutes}
+                  placeholder={"0"}
+                  label={"min"}
+                />
+              </View>
+              <Text style={styles.separator}>:</Text>
+              <NumberInput
+                editable={timer}
+                maxLength={2}
+                value={timerDurationSeconds}
+                onChangeHandle={handleSeconds}
+                setValue={setTimerDurationSeconds}
+                placeholder={"0"}
+                label={"sec"}
+              />
             </View>
-          </View>
-        </LinearGradient>
-        <ControlPanel>
-          <ActionButton
-            style={styles.button}
-            onPress={() =>
-              handleAddTask({
-                text: taskText,
-                id: new Date().toISOString(),
-                isCompleted: false,
-                priority: priority,
-                timer: timer,
-                timerDuration: 60,
-                repeat: 1,
-              })
-            }
-            isDisabled={!taskText}
-          >
-            <Text style={styles.addButtonText}>Ok</Text>
-          </ActionButton>
-        </ControlPanel>
-      </View>
+          </LinearGradient>
+          <ControlPanel>
+            <ActionButton
+              style={styles.button}
+              onPress={() =>
+                handleAddTask({
+                  text: taskText,
+                  id: new Date().toISOString(),
+                  isCompleted: false,
+                  priority: priority,
+                  timer: timer,
+                  timerDuration:
+                    timerDurationMinutes * 60 + timerDurationSeconds,
+                  repeat: 1,
+                })
+              }
+              isDisabled={!taskText}
+            >
+              <Text style={styles.addButtonText}>Ok</Text>
+            </ActionButton>
+          </ControlPanel>
+        </View>
+      </TouchableWithoutFeedback>
     </Modal>
   );
 };
@@ -170,19 +236,11 @@ const styles = StyleSheet.create({
     width: 18.5,
     height: 13.5,
   },
-  inputField: {
-    fontSize: 12,
-    lineHeight: 14,
-    fontFamily: "RedHatDisplay_400Regular",
-    color: "#585A66",
-    height: 40,
-    minHeight: 40,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    backgroundColor: "#FCFCFF",
-    borderWidth: 1,
-    borderColor: "#B3A4FF",
-    borderRadius: 6.8,
+  separator: {
+    fontSize: 10,
+    lineHeight: 10,
+    fontFamily: "RedHatDisplay_700Bold",
+    color: "rgba(123, 97, 255, 0.5)",
   },
   addButtonText: {
     alignSelf: "center",
@@ -191,21 +249,44 @@ const styles = StyleSheet.create({
     fontFamily: "RedHatDisplay_700Bold",
     color: "#ffffff",
   },
-  buttonsContainer: {
+  row: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginVertical: 12,
+    marginBottom: 14,
   },
-  defaultButton: {
+  timerow: {
+    width: "48%%",
+  },
+  cell: {
     width: "48%",
-    height: 40,
+    // height: 40,
+    justifyContent: "center",
   },
   defaultButtonText: {
     fontSize: 12,
     lineHeight: 16,
     fontFamily: "RedHatDisplay_400Regular",
     marginLeft: 10,
+  },
+  note: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignContent: "center",
+    opacity: 0.5,
+  },
+  noteIsActive: {
+    opacity: 1,
+  },
+  noteIcon: {
+    width: 6,
+    height: 6,
+    marginRight: 6,
+  },
+  noteText: {
+    fontSize: 8,
+    lineHeight: 8,
+    color: "#585A66",
   },
   timerIcon: {
     width: 14,

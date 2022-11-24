@@ -15,7 +15,7 @@ const ActionButton = ({ children, onPress, isDisabled }) => {
     return null;
   }
   return (
-    <Pressable style={styles.button} onPress={onPress} disabled={isDisabled}>
+    <Pressable style={({ pressed }) => pressed ? [styles.pressed, styles.button] : styles.button} onPress={onPress} disabled={isDisabled}>
       <LinearGradient
         colors={
           isDisabled
@@ -44,6 +44,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#806DFF",
     borderRadius: 24,
     bottom: 20,
+  },
+  pressed: {
+    opacity: 0.9
   },
   linearGradient: {
     height: 48,

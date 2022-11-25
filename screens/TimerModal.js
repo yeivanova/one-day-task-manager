@@ -8,6 +8,7 @@ import {
   Modal,
   Pressable,
 } from "react-native";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ControlPanel from "../components/ControlPanel";
 import Header from "../components/Header";
 import ActionButton from "../components/ActionButton";
@@ -24,6 +25,7 @@ import { useClock } from "react-native-timer-hooks";
 import CircularProgress from "react-native-circular-progress-indicator";
 
 const TimerModal = (props) => {
+  const insets = useSafeAreaInsets();
   const [counter, start, pause, reset, isRunning] = useClock({
     from: 0,
     to: props.task.timerDuration,
@@ -61,8 +63,8 @@ const TimerModal = (props) => {
 
   return (
     <Modal visible={props.visible} animationType="fade">
-      <View style={styles.page}>
-        <Pressable style={styles.cancel} onPress={handleCancelTimer}>
+      <View style={[{ paddingTop: insets.top, paddingBottom: insets.bottom}, styles.page]}>
+        <Pressable style={[{paddingTop: insets.top}, styles.cancel]} onPress={handleCancelTimer}>
           <Image
             style={styles.backIcon}
             source={require("../assets/icons/back.png")}

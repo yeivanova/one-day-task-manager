@@ -13,7 +13,9 @@ import {
   Text,
   Image,
   TouchableOpacity,
+  Dimensions,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { mockData } from "../mockData";
 import * as SplashScreen from "expo-splash-screen";
 import * as Font from "expo-font";
@@ -149,7 +151,7 @@ export default function Main() {
     : require("../assets/icons/clear-inactive.png");
 
   return (
-    <View style={styles.page} onLayout={onLayout}>
+    <SafeAreaView style={styles.page} onLayout={onLayout}>
       <Header text="list" />
       <View style={styles.container}>
         <LinearGradient
@@ -204,7 +206,7 @@ export default function Main() {
         addTask={addTask}
         hideModal={hideModal}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 

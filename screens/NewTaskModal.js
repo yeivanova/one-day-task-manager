@@ -9,6 +9,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
 } from "react-native";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ControlPanel from "../components/ControlPanel";
 import Header from "../components/Header";
 import ActionButton from "../components/ActionButton";
@@ -25,6 +26,7 @@ import {
 } from "@expo-google-fonts/red-hat-display";
 
 const NewTaskModal = (props) => {
+  const insets = useSafeAreaInsets();
   const [taskText, setTaskText] = useState();
   const [priority, setPriority] = useState(false);
   const [timer, setTimer] = useState(false);
@@ -91,8 +93,8 @@ const NewTaskModal = (props) => {
   return (
     <Modal visible={props.visible} animationType="fade">
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <View style={styles.page}>
-          <Pressable style={styles.cancel} onPress={handleCancelTask}>
+        <View style={[{ paddingTop: insets.top, paddingBottom: insets.bottom}, styles.page]}>
+          <Pressable style={[{paddingTop: insets.top}, styles.cancel]} onPress={handleCancelTask}>
             <Image
               style={styles.backIcon}
               source={require("../assets/icons/back.png")}

@@ -27,6 +27,12 @@ const NumberInput = ({
     else if (value >= 59) setValue(59);
   };
 
+  const formatValue = (value) => {
+    value = value.toString();
+    while (value.length < 2) value = "0" + value;
+    return value;
+  }
+
   return (
     <View style={[styles.container, editable && styles.IsActive]}>
       <Pressable
@@ -44,7 +50,7 @@ const NumberInput = ({
         keyboardType="decimal-pad"
         maxLength={maxLength}
         style={styles.input}
-        value={value.toString() || ""}
+        value={formatValue(value) || ""}
         onChangeText={onChangeHandle}
         placeholder={placeholder}
         placeholderTextColor={"#585A66"}
@@ -78,7 +84,7 @@ const styles = StyleSheet.create({
   },
   input: {
     fontSize: 12,
-    lineHeight: 14,
+    lineHeight: 15,
     fontFamily: "RedHatDisplay_700Bold",
     color: "rgba(0, 0, 0, 0.5)",
     width: 46,

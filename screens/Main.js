@@ -50,9 +50,25 @@ export default function Main() {
   const [appIsReady, setAppIsReady] = useState(false);
   const [modalIsVisible, setModalIsVisible] = useState(false);
   const [tasks, setTasks] = useState(mockData);
+  const [tasksList, setTasksList] = useState(tasks);
   const itemRefs = useRef(new Map());
   const [isClearButtonActive, setisClearButtonActive] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [activeTab, setActiveTab] = useState("All");
+
+  const setStatusFilter = (tab) => {
+    switch (tab) {
+      case "Active":
+        setTasksList([...tasks.filter((task) => task.isCompleted === false)]);
+        break;
+      case "Completed":
+        setTasksList([...tasks.filter((task) => task.isCompleted === true)]);
+        break;
+      default:
+        setTasksList([...tasks]);
+    }
+    setActiveTab(tab);
+  };
 
   const ref = createRef();
   const flatListRef = useRef(null);
@@ -68,12 +84,16 @@ export default function Main() {
   const addTask = (task) => {
     if (tasks === null) return;
     setTasks((currentTasks) => [...currentTasks, task]);
+    setTasksList(tasks);
     Keyboard.dismiss();
     hideModal();
   };
 
   const deleteTask = (deleteIndex) => {
-    setTasks(tasks.filter((value) => value.id != deleteIndex));
+    const tempArr = [].concat(tasks.filter((task) => task.id != deleteIndex));
+    setTasks(tempArr);
+    setTasksList(tempArr);
+    setisClearButtonActive(tempArr.some((task) => task.isCompleted === true));
   };
 
   const clearCompetedTasks = () => {
@@ -81,6 +101,8 @@ export default function Main() {
       tasks.filter((task) => task.isCompleted === false)
     );
     setTasks(tempArr);
+    setTasksList(tempArr);
+    setActiveTab("All");
     setisClearButtonActive(tempArr.some((task) => task.isCompleted === true));
   };
 
@@ -93,6 +115,7 @@ export default function Main() {
     });
 
     setTasks(updatedTasks);
+    setTasksList(updatedTasks);
     setisClearButtonActive(
       updatedTasks.some((task) => task.isCompleted === true)
     );
@@ -125,6 +148,22 @@ export default function Main() {
     return null;
   }
 
+  const tabsList = [
+    {
+      text: "All",
+    },
+    {
+      text: "Active",
+    },
+    {
+      text: "Completed",
+    },
+  ];
+
+  let clearIcon = isClearButtonActive
+    ? require("../assets/icons/clear.png")
+    : require("../assets/icons/clear-inactive.png");
+
   const renderItem = ({ item, drag, isActive }) => {
     return (
       <TouchableOpacity
@@ -146,14 +185,28 @@ export default function Main() {
     );
   };
 
-  let clearIcon = isClearButtonActive
-    ? require("../assets/icons/clear.png")
-    : require("../assets/icons/clear-inactive.png");
-
   return (
     <SafeAreaView style={styles.page} onLayout={onLayout}>
       <Header text="list" />
       <View style={styles.container}>
+        <View style={styles.tabsContainer}>
+          {tabsList.map((tab, index) => (
+            <Pressable
+              style={[styles.tab, activeTab === tab.text && styles.tabIsActive]}
+              key={index}
+              onPress={() => setStatusFilter(tab.text)}
+            >
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === tab.text && styles.tabIsActiveText,
+                ]}
+              >
+                {tab.text}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
         <LinearGradient
           colors={["#ffffff", "#F9F9FF"]}
           locations={[0.0413, 0.26]}
@@ -184,7 +237,7 @@ export default function Main() {
             onRef={(ref) => {
               flatListRef.current = ref;
             }}
-            data={tasks}
+            data={tasksList}
             onDragEnd={({ data }) => setTasks(data)}
             renderItem={renderItem}
             alwaysBounceVertical={false}
@@ -245,6 +298,31 @@ const styles = StyleSheet.create({
   },
   taskContainer: {
     padding: 4,
+  },
+  tabsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+  },
+  tab: {
+    paddingHorizontal: 15,
+    paddingVertical: 5,
+  },
+  tabIsActive: {
+    borderBottomWidth: 3,
+    borderBottomColor: "#806DFF",
+    textShadowColor: "rgba(0, 0, 0, 0)",
+  },
+  tabText: {
+    fontSize: 14,
+    lineHeight: 19,
+    color: "#FAFBFF",
+    textShadowColor: "rgba(54, 54, 183, 0.38)",
+    textShadowOffset: { width: -0.3, height: -0.3 },
+    textShadowRadius: 0.5,
+    textAlign: "center",
+  },
+  tabIsActiveText: {
+    color: "#806DFF",
   },
   clearContainer: {
     flexDirection: "row",

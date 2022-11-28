@@ -1,19 +1,37 @@
 import React from "react";
-import { StyleSheet, KeyboardAvoidingView, TextInput } from "react-native";
+import {
+  StyleSheet,
+  KeyboardAvoidingView,
+  TextInput,
+  ImageBackground,
+} from "react-native";
 
-const Input = ({ value, onChangeText, placeholder }) => {
+const Input = ({ value, onChangeText, placeholder, multiline = false }) => {
+  let inputBacjgroung = multiline
+    ? require("../assets/images/textarea-bg.png")
+    : require("../assets/images/input-bg.png");
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
-      <TextInput
-        style={styles.input}
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        placeholderTextColor={"#585A66"}
-      />
+      <ImageBackground
+        source={inputBacjgroung}
+        style={[
+          styles.inputContainer,
+          multiline === true && styles.textAreaContainer,
+        ]}
+      >
+        <TextInput
+          style={[styles.input, multiline === true && styles.textArea]}
+          value={value}
+          multiline={multiline}
+          onChangeText={onChangeText}
+          placeholder={placeholder}
+          placeholderTextColor={"rgba(88, 90, 102, 0.3)"}
+        />
+      </ImageBackground>
     </KeyboardAvoidingView>
   );
 };
@@ -24,20 +42,29 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignContent: "center",
   },
+  inputContainer: {
+    resizeMode: "auto",
+    borderRadius: 6.8,
+    height: 40,
+    marginBottom: 14,
+  },
+  textAreaContainer: {
+    height: 105,
+  },
   input: {
     fontSize: 12,
-    lineHeight: 14,
+    lineHeight: 15,
     fontFamily: "RedHatDisplay_400Regular",
     color: "#585A66",
     height: 40,
-    minHeight: 40,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    backgroundColor: "#FCFCFF",
-    borderWidth: 1,
-    borderColor: "#B3A4FF",
     borderRadius: 6.8,
-    marginBottom: 14,
+    backgroundColor: "rgba(255, 255, 255, 0)",
+  },
+  textArea: {
+    height: 105,
+    lineHeight: 20,
   },
 });
 

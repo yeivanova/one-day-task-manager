@@ -84,7 +84,7 @@ export default function Main() {
   const addTask = (task) => {
     if (tasks === null) return;
     setTasks((currentTasks) => [...currentTasks, task]);
-    setTasksList(tasks);
+    setTasksList((currentTasks) => [...currentTasks, task]);
     Keyboard.dismiss();
     hideModal();
   };
@@ -238,7 +238,10 @@ export default function Main() {
               flatListRef.current = ref;
             }}
             data={tasksList}
-            onDragEnd={({ data }) => setTasks(data)}
+            onDragEnd={({ data }) => {
+              setTasks(data);
+              setTasksList(data);
+            }}
             renderItem={renderItem}
             alwaysBounceVertical={false}
             keyExtractor={(item, index) => item.id}

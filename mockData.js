@@ -20,13 +20,15 @@ export const mockData = [
   	isCompleted: false },
   {
     text: "Do workout",
+    description: "Do crunches, plank and stretching",
     id: "2022-11-20T08:51:40.509Z",
     isCompleted: false,
     timer: true,
     timerDuration: 60,
   },
   {
-    text: "Make project",
+    text: "Make a project",
+    description: "Implement a new feature, don't forget to push it to the repository",
     id: "2022-11-20T08:51:50.920Z",
     isCompleted: false,
     priority: true,

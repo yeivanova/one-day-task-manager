@@ -9,7 +9,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
 } from "react-native";
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ControlPanel from "../components/ControlPanel";
 import Header from "../components/Header";
 import ActionButton from "../components/ActionButton";
@@ -27,7 +27,8 @@ import {
 
 const NewTaskModal = (props) => {
   const insets = useSafeAreaInsets();
-  const [taskText, setTaskText] = useState();
+  const [taskText, setTaskText] = useState("");
+  const [taskDescription, setTaskDescription] = useState("");
   const [priority, setPriority] = useState(false);
   const [timer, setTimer] = useState(false);
   const [timerDurationMinutes, setTimerDurationMinutes] = useState(0);
@@ -44,14 +45,23 @@ const NewTaskModal = (props) => {
     return null;
   }
 
+  const clearFields = () => {
+    setTaskText("");
+    setTaskDescription("");
+    setPriority(false);
+    setTimer(false);
+    setTimerDurationMinutes(0);
+    setTimerDurationSeconds(0);
+  }
+
   const handleAddTask = (value) => {
     props.addTask(value);
-    setTaskText("");
+    clearFields();
   };
 
   const handleCancelTask = () => {
     props.hideModal();
-    setTaskText("");
+    clearFields();
   };
 
   const handleMinutes = (value) => {
@@ -93,8 +103,16 @@ const NewTaskModal = (props) => {
   return (
     <Modal visible={props.visible} animationType="fade">
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <View style={[{ paddingTop: insets.top, paddingBottom: insets.bottom}, styles.page]}>
-          <Pressable style={[{paddingTop: insets.top}, styles.cancel]} onPress={handleCancelTask}>
+        <View
+          style={[
+            { paddingTop: insets.top, paddingBottom: insets.bottom },
+            styles.page,
+          ]}
+        >
+          <Pressable
+            style={[{ paddingTop: insets.top }, styles.cancel]}
+            onPress={handleCancelTask}
+          >
             <Image
               style={styles.backIcon}
               source={require("../assets/icons/back.png")}
@@ -154,24 +172,35 @@ const NewTaskModal = (props) => {
                 />
               </View>
               <Text style={styles.separator}>:</Text>
-              <NumberInput
-                editable={timer}
-                maxLength={2}
-                value={timerDurationSeconds}
-                onChangeHandle={handleSeconds}
-                setValue={setTimerDurationSeconds}
-                placeholder={"0"}
-                label={"sec"}
-              />
+              <View style={styles.timeField}>
+                <NumberInput
+                  editable={timer}
+                  maxLength={2}
+                  value={timerDurationSeconds}
+                  onChangeHandle={handleSeconds}
+                  setValue={setTimerDurationSeconds}
+                  placeholder={"0"}
+                  label={"sec"}
+                />
+              </View>
             </View>
+            <Input
+              value={taskDescription || ""}
+              multiline={true}
+              onChangeText={(taskDescription) =>
+                setTaskDescription(taskDescription)
+              }
+              placeholder={"Details"}
+            />
           </LinearGradient>
           <ControlPanel>
             <ActionButton
               style={styles.button}
               onPress={() =>
                 handleAddTask({
-                  text: taskText,
                   id: new Date().toISOString(),
+                  text: taskText,
+                  description: taskDescription,
                   isCompleted: false,
                   priority: priority,
                   timer: timer,
@@ -205,7 +234,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-start",
     alignContent: "stretch",
-    paddingTop: 53,
+    paddingTop: 27,
     paddingHorizontal: 30,
     borderRadius: 20,
     borderWidth: 1,

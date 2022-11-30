@@ -7,7 +7,7 @@ import {
 } from "react-native";
 
 const Input = ({ value, onChangeText, placeholder, multiline = false }) => {
-  let inputBacjgroung = multiline
+  let inputBackground = multiline
     ? require("../assets/images/textarea-bg.png")
     : require("../assets/images/input-bg.png");
 
@@ -17,11 +17,12 @@ const Input = ({ value, onChangeText, placeholder, multiline = false }) => {
       style={styles.container}
     >
       <ImageBackground
-        source={inputBacjgroung}
+        source={inputBackground}
         style={[
           styles.inputContainer,
           multiline === true && styles.textAreaContainer,
         ]}
+        resizeMode={"stretch"}
       >
         <TextInput
           style={[styles.input, multiline === true && styles.textArea]}
@@ -43,7 +44,6 @@ const styles = StyleSheet.create({
     alignContent: "center",
   },
   inputContainer: {
-    resizeMode: "auto",
     borderRadius: 6.8,
     height: 40,
     marginBottom: 14,

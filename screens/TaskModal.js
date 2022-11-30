@@ -82,34 +82,6 @@ const TaskModal = ({ editMode, setEditMode, visible, addTask, editingTask, editT
     setEditMode(false);
   };
 
-  const handleMinutes = (value) => {
-    number = parseInt(value);
-    if (value.length === 0) {
-      setTimerDurationMinutes("");
-    } else {
-      setTimerDurationMinutes(number);
-      if (number >= 59) {
-        setTimerDurationMinutes(59);
-      } else if (number < 0) {
-        setTimerDurationMinutes(0);
-      } else setTimerDurationMinutes(number);
-    }
-  };
-
-  const handleSeconds = (value) => {
-    number = parseInt(value);
-    if (value.length === 0) {
-      setTimerDurationSeconds("");
-    } else {
-      setTimerDurationSeconds(number);
-      if (number >= 59) {
-        setTimerDurationSeconds(59);
-      } else if (number < 0) {
-        setTimerDurationSeconds(0);
-      } else setTimerDurationSeconds(number);
-    }
-  };
-
   let timerIcon = timer
     ? require("../assets/icons/timer.png")
     : require("../assets/icons/timer-inactive.png");
@@ -183,7 +155,6 @@ const TaskModal = ({ editMode, setEditMode, visible, addTask, editingTask, editT
                   editable={timer}
                   maxLength={2}
                   value={timerDurationMinutes}
-                  onChangeHandle={handleMinutes}
                   setValue={setTimerDurationMinutes}
                   placeholder={"0"}
                   label={"min"}
@@ -195,7 +166,6 @@ const TaskModal = ({ editMode, setEditMode, visible, addTask, editingTask, editT
                   editable={timer}
                   maxLength={2}
                   value={timerDurationSeconds}
-                  onChangeHandle={handleSeconds}
                   setValue={setTimerDurationSeconds}
                   placeholder={"0"}
                   label={"sec"}

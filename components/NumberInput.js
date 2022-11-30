@@ -7,60 +7,76 @@ import {
   Pressable,
   Image,
   Keyboard,
+  ImageBackground,
 } from "react-native";
 
 const NumberInput = ({
   value,
   setValue,
   placeholder,
-  onChangeHandle,
   maxLength,
   editable,
   label,
 }) => {
-  const decrement = () => {
-    if (value > 0) setValue(value - 1);
-  };
-
-  const increment = () => {
+  const increment = (value) => {
+    value = +value;
     if (value < 59) setValue(value + 1);
     else if (value >= 59) setValue(59);
   };
 
-  const formatValue = (value) => {
-    value = value.toString();
-    while (value.length < 2) value = "0" + value;
-    return value;
-  }
+  const decrement = (value) => {
+    value = +value;
+    if (value > 0) setValue(value - 1);
+  };
+
+  const inputHandler = (val) => {
+    number = parseInt(val);
+    if (val.length === 0) {
+      setValue("");
+    } else {
+      setValue(number);
+      if (number >= 59) {
+        setValue(59);
+      } else if (number < 0) {
+        setValue(0);
+      } else setValue(number);
+    }
+  };
 
   return (
     <View style={[styles.container, editable && styles.IsActive]}>
       <Pressable
         style={styles.control}
         disabled={!editable}
-        onPress={() => increment(+value)}
+        onPress={() => increment(value)}
       >
         <Image
           style={styles.icon}
           source={require("../assets/icons/increase.png")}
         />
       </Pressable>
-      <TextInput
-        editable={editable}
-        keyboardType="decimal-pad"
-        maxLength={maxLength}
-        style={styles.input}
-        value={formatValue(value) || ""}
-        onChangeText={onChangeHandle}
-        placeholder={placeholder}
-        placeholderTextColor={"#585A66"}
-        onSubmitEditing={Keyboard.dismiss}
-      />
+      <ImageBackground
+        source={require("../assets/images/number-input-bg.png")}
+        style={styles.inputContainer}
+        resizeMode={"stretch"}
+      >
+        <TextInput
+          editable={editable}
+          keyboardType="decimal-pad"
+          maxLength={maxLength}
+          style={styles.input}
+          value={value.toString()}
+          onChangeText={(value) => inputHandler(value)}
+          placeholder={placeholder}
+          placeholderTextColor={"#585A66"}
+          onSubmitEditing={Keyboard.dismiss}
+        />
+      </ImageBackground>
       <Text style={styles.label}>{label}</Text>
       <Pressable
         style={styles.control}
         disabled={!editable}
-        onPress={() => decrement(+value)}
+        onPress={() => decrement(value)}
       >
         <Image
           style={styles.icon}
@@ -76,7 +92,6 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "center",
     alignContent: "center",
-    backgroundColor: "#FCFCFF",
     opacity: 0.8,
   },
   IsActive: {
@@ -84,17 +99,20 @@ const styles = StyleSheet.create({
   },
   input: {
     fontSize: 12,
-    lineHeight: 15,
+    lineHeight: 16,
     fontFamily: "RedHatDisplay_700Bold",
     color: "rgba(0, 0, 0, 0.5)",
     width: 46,
     height: 18,
     minHeight: 18,
     paddingHorizontal: 10,
-    backgroundColor: "#FCFCFF",
-    borderWidth: 1,
-    borderColor: "#B3A4FF",
+    backgroundColor: "rgba(255, 255, 255, 0)",
     borderRadius: 3.2,
+  },
+  inputContainer: {
+    borderRadius: 6.8,
+    width: 46,
+    height: 18,
   },
   control: {
     alignSelf: "center",

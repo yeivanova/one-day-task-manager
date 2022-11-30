@@ -4,6 +4,7 @@ import {
   useFonts,
   RedHatDisplay_700Bold,
 } from "@expo-google-fonts/red-hat-display";
+import Colors from "../constants/colors";
 
 const Header = ({ text }) => {
   let [fontsLoaded] = useFonts({
@@ -40,7 +41,7 @@ const styles = StyleSheet.create({
     fontSize: 32,
     lineHeight: 42,
     fontFamily: "RedHatDisplay_700Bold",
-    color: "#000000",
+    color: Colors.text,
     marginLeft: 5,
   },
 });

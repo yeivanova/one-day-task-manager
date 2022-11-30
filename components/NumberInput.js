@@ -9,6 +9,7 @@ import {
   Keyboard,
   ImageBackground,
 } from "react-native";
+import Colors from "../constants/colors";
 
 const NumberInput = ({
   value,
@@ -68,7 +69,7 @@ const NumberInput = ({
           value={value.toString()}
           onChangeText={(value) => inputHandler(value)}
           placeholder={placeholder}
-          placeholderTextColor={"#585A66"}
+          placeholderTextColor={Colors.placeholder}
           onSubmitEditing={Keyboard.dismiss}
         />
       </ImageBackground>
@@ -101,12 +102,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 16,
     fontFamily: "RedHatDisplay_700Bold",
-    color: "rgba(0, 0, 0, 0.5)",
+    color: Colors.lightText,
     width: 46,
     height: 18,
     minHeight: 18,
     paddingHorizontal: 10,
-    backgroundColor: "rgba(255, 255, 255, 0)",
+    backgroundColor: "transparent",
     borderRadius: 3.2,
   },
   inputContainer: {
@@ -128,7 +129,7 @@ const styles = StyleSheet.create({
     top: 22,
     fontSize: 6.4,
     lineHeight: 9,
-    color: "rgba(88, 90, 102, 0.3)",
+    color: Colors.placeholder,
   },
 });
 

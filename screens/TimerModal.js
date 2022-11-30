@@ -12,6 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ControlPanel from "../components/ControlPanel";
 import Header from "../components/Header";
 import ActionButton from "../components/ActionButton";
+import Colors from "../constants/colors";
 import { LinearGradient } from "expo-linear-gradient";
 import {
   useFonts,
@@ -73,7 +74,7 @@ const TimerModal = (props) => {
         </Pressable>
         <Header text="timer" />
         <LinearGradient
-          colors={["#ffffff", "#F9F9FF"]}
+          colors={[Colors.background, Colors.gradientStart]}
           locations={[0.0413, 0.26]}
           style={styles.mainPanel}
         >
@@ -89,11 +90,11 @@ const TimerModal = (props) => {
                   radius={93}
                   value={value}
                   rotation={-180}
-                  progressValueColor={"rgba(0, 0, 0, 0)"}
+                  progressValueColor={"transparent"}
                   activeStrokeWidth={6}
                   inActiveStrokeWidth={15}
-                  activeStrokeColor={"#806DFF"}
-                  inActiveStrokeColor={"rgba(0, 0, 0, 0)"}
+                  activeStrokeColor={Colors.primary}
+                  inActiveStrokeColor={"transparent"}
                   inActiveStrokeOpacity={0.5}
                   duration={props.task.timerDuration * 1000 + 1000}
                   onAnimationComplete={() => {
@@ -167,9 +168,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: "#E9E5FF",
+    borderColor: Colors.border,
     borderRadius: 20,
-    shadowColor: "#ffffff",
+    shadowColor: Colors.background,
     shadowOpacity: 0.36,
     shadowOffset: {
       width: -10,
@@ -189,7 +190,7 @@ const styles = StyleSheet.create({
     fontFamily: "RedHatDisplay_900Black",
     fontSize: 12,
     lineHeight: 16,
-    color: "#806DFF",
+    color: Colors.primary,
     marginLeft: 6,
   },
   backIcon: {
@@ -211,7 +212,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     lineHeight: 30,
     fontFamily: "RedHatDisplay_700Bold",
-    color: "#ffffff",
+    color: Colors.background,
   },
   pauseIcon: {
     width: 11,
@@ -244,7 +245,7 @@ const styles = StyleSheet.create({
   timerText: {
     fontSize: 37,
     fontFamily: "RedHatDisplay_300Light",
-    color: "#000000",
+    color: Colors.text,
   },
   timerIcon: {
     width: 37,

@@ -5,6 +5,7 @@ import {
   TextInput,
   ImageBackground,
 } from "react-native";
+import Colors from "../constants/colors";
 
 const Input = ({ value, onChangeText, placeholder, multiline = false }) => {
   let inputBackground = multiline
@@ -30,7 +31,7 @@ const Input = ({ value, onChangeText, placeholder, multiline = false }) => {
           multiline={multiline}
           onChangeText={onChangeText}
           placeholder={placeholder}
-          placeholderTextColor={"rgba(88, 90, 102, 0.3)"}
+          placeholderTextColor={Colors.placeholder}
         />
       </ImageBackground>
     </KeyboardAvoidingView>
@@ -55,12 +56,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 15,
     fontFamily: "RedHatDisplay_400Regular",
-    color: "#585A66",
+    color: Colors.inputText,
     height: 40,
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 6.8,
-    backgroundColor: "rgba(255, 255, 255, 0)",
+    backgroundColor: "transparent",
   },
   textArea: {
     height: 105,

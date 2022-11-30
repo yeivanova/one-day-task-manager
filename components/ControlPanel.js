@@ -1,5 +1,6 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
+import Colors from "../constants/colors";
 
 const ControlPanel = ({ children }) => {
   return (
@@ -15,7 +16,7 @@ const styles = StyleSheet.create({
     height: 45,
     flexDirection: "row",
     justifyContent: "center",
-    backgroundColor: "#ffffff",
+    backgroundColor: Colors.background,
     shadowRadius: 6,
   }
 });

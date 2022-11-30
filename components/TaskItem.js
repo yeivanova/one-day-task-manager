@@ -6,6 +6,7 @@ import {
   RedHatDisplay_400Regular,
 } from "@expo-google-fonts/red-hat-display";
 import TimerModal from "../screens/TimerModal";
+import Colors from "../constants/colors";
 import Animated, { LightSpeedOutRight, Layout } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 
@@ -38,7 +39,7 @@ const TaskItem = ({ task, deleteTask, pickTask, toggleTaskCompleted }) => {
         <View style={styles.taskContainer}>
           <Checkbox
             style={styles.checkbox}
-            color={task.isCompleted ? "#806DFF" : undefined}
+            color={task.isCompleted ? Colors.primary : undefined}
             value={task.isCompleted}
             onValueChange={() => toggleTaskCompleted(task.id)}
           />
@@ -81,7 +82,7 @@ const TaskItem = ({ task, deleteTask, pickTask, toggleTaskCompleted }) => {
         </View>
         {task.description && descriptionIsVisible && (
           <LinearGradient style={styles.taskDescriptionContainer}
-            colors={["rgba(255, 255, 255, 1)", "#F9F9FF"]}
+            colors={[Colors.background, Colors.gradientStart]}
             locations={[0.06, 1]}
           >
             <Text
@@ -135,8 +136,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     padding: 9,
-    backgroundColor: "#ffffff",
-    shadowColor: "rgb(128, 109, 255)",
+    backgroundColor: Colors.background,
+    shadowColor: Colors.primary,
     shadowOffset: {
       width: 0,
       height: 0,
@@ -150,34 +151,35 @@ const styles = StyleSheet.create({
     height: 16,
     marginRight: 12,
     borderWidth: 1,
-    borderColor: "#B3A4FF",
+    borderColor: Colors.lightPrimary,
   },
   taskTextWrapper: {
     flex: 1,
   },
   task: {
     maxWidth: "80%",
-    color: "#000000",
+    color: Colors.text,
     fontSize: 12,
     lineHeight: 14,
     fontFamily: "RedHatDisplay_400Regular",
   },
   taskCompleted: {
-    color: "rgba(123, 97, 255, 0.4)",
+    color: Colors.lightPrimary,
     textDecorationLine: "line-through",
+    opacity: 0.4
   },
   taskDescriptionContainer: {
     paddingTop: 13,
     paddingHorizontal: 36,
     paddingBottom: 10,
     marginBottom: -4,
-    borderColor: "#F9F9FF",
+    borderColor: Colors.gradientStart,
     borderWidth: 1,
     borderBottomLeftRadius: 3.5,
     borderBottomRightRadius: 3.5,
   },
   taskDescriptionText: {
-    color: "#7B61FF",
+    color: Colors.lightPrimary,
     fontSize: 10,
     lineHeight: 13,
   },
@@ -203,7 +205,7 @@ const styles = StyleSheet.create({
     height: 26,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#806DFF",
+    backgroundColor: Colors.primary,
     borderRadius: 4,
     marginTop: 4,
     marginLeft: 6,
@@ -217,7 +219,7 @@ const styles = StyleSheet.create({
     height: 26,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#806DFF",
+    backgroundColor: Colors.primary,
     borderRadius: 4,
     marginTop: 4,
     marginLeft: 6,

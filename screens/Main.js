@@ -24,6 +24,7 @@ import TaskModal from "./TaskModal";
 import TaskItem from "../components/TaskItem";
 import ControlPanel from "../components/ControlPanel";
 import ActionButton from "../components/ActionButton";
+import Colors from "../constants/colors";
 import { LinearGradient } from "expo-linear-gradient";
 import DraggableFlatList from "react-native-draggable-flatlist";
 import {
@@ -234,7 +235,7 @@ export default function Main() {
           ))}
         </View>
         <LinearGradient
-          colors={["#ffffff", "#F9F9FF"]}
+          colors={[Colors.background, Colors.gradientStart]}
           locations={[0.0413, 0.26]}
           style={styles.mainPanel}
         >
@@ -327,9 +328,9 @@ const styles = StyleSheet.create({
     padding: 30,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: "#E9E5FF",
+    borderColor: Colors.border,
     borderRadius: 20,
-    shadowColor: "#ffffff",
+    shadowColor: Colors.background,
     shadowOpacity: 0.36,
     shadowOffset: {
       width: -10,
@@ -350,20 +351,20 @@ const styles = StyleSheet.create({
   },
   tabIsActive: {
     borderBottomWidth: 3,
-    borderBottomColor: "#806DFF",
-    textShadowColor: "rgba(0, 0, 0, 0)",
+    borderBottomColor: Colors.primary,
+    textShadowColor: "transparent",
   },
   tabText: {
     fontSize: 14,
     lineHeight: 19,
-    color: "#FAFBFF",
-    textShadowColor: "rgba(54, 54, 183, 0.38)",
+    color: Colors.inActiveText,
+    textShadowColor: Colors.textShadow,
     textShadowOffset: { width: -0.3, height: -0.3 },
     textShadowRadius: 0.5,
     textAlign: "center",
   },
   tabIsActiveText: {
-    color: "#806DFF",
+    color: Colors.primary,
   },
   clearContainer: {
     flexDirection: "row",
@@ -383,8 +384,8 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   clearCompetedText: {
-    color: "#FAFBFF",
-    textShadowColor: "rgba(54, 54, 183, 0.38)",
+    color: Colors.inActiveText,
+    textShadowColor: Colors.textShadow,
     textShadowOffset: { width: -0.3, height: -0.3 },
     textShadowRadius: 0.5,
     fontSize: 8,
@@ -393,14 +394,14 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
   },
   clearCompetedButtonActive: {
-    color: "#626262",
-    textShadowColor: "rgba(54, 54, 183, 0)",
+    color: Colors.activeText,
+    textShadowColor: "transparent",
   },
   itemsCount: {
     fontSize: 9,
     lineHeight: 12,
-    color: "#FAFBFF",
-    textShadowColor: "rgba(54, 54, 183, 0.38)",
+    color: Colors.inActiveText,
+    textShadowColor: Colors.textShadow,
     textShadowOffset: { width: -0.3, height: -0.3 },
     textShadowRadius: 0.5,
   },
@@ -412,7 +413,7 @@ const styles = StyleSheet.create({
     marginRight: 1,
   },
   draggableItem: {
-    shadowColor: "rgb(128, 109, 255)",
+    shadowColor: Colors.primary,
     shadowOffset: {
       width: 0,
       height: 0,

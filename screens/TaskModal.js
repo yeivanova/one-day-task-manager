@@ -15,6 +15,7 @@ import ActionButton from "../components/ActionButton";
 import DefaultButton from "../components/DefaultButton";
 import Input from "../components/Input";
 import NumberInput from "../components/NumberInput";
+import Colors from "../constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import {
@@ -111,7 +112,7 @@ const TaskModal = ({ editMode, setEditMode, visible, addTask, editingTask, editT
           </Pressable>
           <Header text="task" />
           <LinearGradient
-            colors={["#ffffff", "#F9F9FF"]}
+            colors={[Colors.background, Colors.gradientStart]}
             locations={[0.0413, 0.26]}
             style={styles.mainPanel}
           >
@@ -226,9 +227,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: "#E9E5FF",
+    borderColor: Colors.border,
     borderRadius: 20,
-    shadowColor: "#ffffff",
+    shadowColor: Colors.background,
     shadowOpacity: 0.36,
     shadowOffset: {
       width: -10,
@@ -248,7 +249,7 @@ const styles = StyleSheet.create({
     fontFamily: "RedHatDisplay_900Black",
     fontSize: 12,
     lineHeight: 16,
-    color: "#806DFF",
+    color: Colors.primary,
     marginLeft: 6,
   },
   backIcon: {
@@ -259,14 +260,15 @@ const styles = StyleSheet.create({
     fontSize: 10,
     lineHeight: 10,
     fontFamily: "RedHatDisplay_700Bold",
-    color: "rgba(123, 97, 255, 0.5)",
+    color: Colors.lightPrimary,
+    opacity: 0.5
   },
   addButtonText: {
     alignSelf: "center",
     fontSize: 11,
     lineHeight: 30,
     fontFamily: "RedHatDisplay_700Bold",
-    color: "#ffffff",
+    color: Colors.background,
   },
   row: {
     flexDirection: "row",
@@ -275,7 +277,7 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   timerow: {
-    width: "48%%",
+    width: "48%",
   },
   cell: {
     width: "48%",
@@ -304,7 +306,7 @@ const styles = StyleSheet.create({
   noteText: {
     fontSize: 8,
     lineHeight: 8,
-    color: "#585A66",
+    color: Colors.inputText,
   },
   timerIcon: {
     width: 14,

@@ -1,5 +1,6 @@
 import React from "react";
 import { StyleSheet, Pressable } from "react-native";
+import Colors from "../constants/colors";
 
 const DefaultButton = ({ children, onPress }) => {
   return (
@@ -18,8 +19,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 13,
     paddingVertical: 9,
     borderRadius: 4,
-    backgroundColor: "#ffffff",
-    shadowColor: "rgb(128, 109, 255)",
+    backgroundColor: Colors.background,
+    shadowColor: Colors.primary,
     shadowOpacity: 0.12,
     shadowRadius: 3,
   }

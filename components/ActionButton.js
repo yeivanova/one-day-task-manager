@@ -5,6 +5,7 @@ import {
   useFonts,
   RedHatDisplay_700Bold,
 } from "@expo-google-fonts/red-hat-display";
+import Colors from "../constants/colors";
 
 const ActionButton = ({ children, onPress, isDisabled }) => {
   let [fontsLoaded] = useFonts({
@@ -19,8 +20,8 @@ const ActionButton = ({ children, onPress, isDisabled }) => {
       <LinearGradient
         colors={
           isDisabled
-            ? ["rgba(255, 255, 255, 0.15)", "rgba(255, 255, 255, 0.15)"]
-            : ["rgba(255, 255, 255, 0.15)", "#422BB8"]
+            ? [Colors.disabledButton, Colors.disabledButton]
+            : [Colors.disabledButton, Colors.gradientStop]
         }
         start={{ x: -0.25, y: -0.5 }}
         end={{ x: 1, y: 1 }}
@@ -41,7 +42,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     position: "absolute",
-    backgroundColor: "#806DFF",
+    backgroundColor: Colors.primary,
     borderRadius: 24,
     bottom: 20,
   },

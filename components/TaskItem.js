@@ -9,7 +9,7 @@ import TimerModal from "../screens/TimerModal";
 import Animated, { LightSpeedOutRight, Layout } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 
-const TaskItem = ({ task, deleteTask, toggleTaskCompleted }) => {
+const TaskItem = ({ task, deleteTask, pickTask, toggleTaskCompleted }) => {
   const [modalIsVisible, setModalIsVisible] = useState(false);
   const [descriptionIsVisible, setDescriptionIsVisible] = useState(false);
   let [fontsLoaded] = useFonts({
@@ -99,6 +99,12 @@ const TaskItem = ({ task, deleteTask, toggleTaskCompleted }) => {
         <Image
           style={styles.deleteIcon}
           source={require("../assets/icons/delete.png")}
+        />
+      </Pressable>
+      <Pressable style={styles.edit} onPress={pickTask}>
+        <Image
+          style={styles.editIcon}
+          source={require("../assets/icons/edit.png")}
         />
       </Pressable>
       <TimerModal
@@ -200,11 +206,25 @@ const styles = StyleSheet.create({
     backgroundColor: "#806DFF",
     borderRadius: 4,
     marginTop: 4,
-    marginLeft: 10,
+    marginLeft: 6,
   },
   deleteIcon: {
     width: 12,
     height: 12.5,
+  },
+  edit: {
+    width: 26,
+    height: 26,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#806DFF",
+    borderRadius: 4,
+    marginTop: 4,
+    marginLeft: 6,
+  },
+  editIcon: {
+    width: 10.5,
+    height: 10,
   },
 });
 

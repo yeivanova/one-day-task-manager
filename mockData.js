@@ -1,6 +1,6 @@
 export const mockData = [
   {
-    text: "Feed tha cat",
+    text: "Feed the cat",
     id: "2022-11-20T08:51:21.135Z",
     isCompleted: false,
     priority: true,

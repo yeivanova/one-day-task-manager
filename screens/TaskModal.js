@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -9,13 +9,13 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import ControlPanel from "../components/ControlPanel";
 import Header from "../components/Header";
+import ControlPanel from "../components/ControlPanel";
 import ActionButton from "../components/ActionButton";
 import DefaultButton from "../components/DefaultButton";
 import Input from "../components/Input";
 import NumberInput from "../components/NumberInput";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import {
   useFonts,
@@ -25,7 +25,7 @@ import {
   RedHatDisplay_900Black,
 } from "@expo-google-fonts/red-hat-display";
 
-const NewTaskModal = (props) => {
+const TaskModal = ({ editMode, setEditMode, visible, addTask, editingTask, editTask, hideModal }) => {
   const insets = useSafeAreaInsets();
   const [taskText, setTaskText] = useState("");
   const [taskDescription, setTaskDescription] = useState("");
@@ -33,6 +33,17 @@ const NewTaskModal = (props) => {
   const [timer, setTimer] = useState(false);
   const [timerDurationMinutes, setTimerDurationMinutes] = useState(0);
   const [timerDurationSeconds, setTimerDurationSeconds] = useState(0);
+
+  useEffect(() => {
+    if (editMode && editingTask) {
+      setTaskText(editingTask.text ?? "");
+      setTaskDescription(editingTask.description ?? "")
+      setPriority(editingTask.priority ?? "");
+      setTimer(editingTask.timer ?? "");
+      setTimerDurationMinutes(editingTask.timerDuration ? Math.floor(editingTask.timerDuration / 60).toString() : "0");
+      setTimerDurationSeconds(editingTask.timerDuration ? (editingTask.timerDuration % 60).toString() : "0");
+    }
+  }, [editingTask, editMode, visible]);
 
   let [fontsLoaded] = useFonts({
     RedHatDisplay_400Regular,
@@ -54,14 +65,21 @@ const NewTaskModal = (props) => {
     setTimerDurationSeconds(0);
   }
 
-  const handleAddTask = (value) => {
-    props.addTask(value);
+  const handleTask = (task) => {
+    if (editMode) {
+      editTask(task);
+    }
+    else {
+      addTask(task);
+    }
     clearFields();
+    setEditMode(false);
   };
 
   const handleCancelTask = () => {
-    props.hideModal();
+    hideModal();
     clearFields();
+    setEditMode(false);
   };
 
   const handleMinutes = (value) => {
@@ -101,7 +119,7 @@ const NewTaskModal = (props) => {
     : require("../assets/icons/priority-inactive.png");
 
   return (
-    <Modal visible={props.visible} animationType="fade">
+    <Modal visible={visible} animationType="fade">
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <View
           style={[
@@ -126,7 +144,7 @@ const NewTaskModal = (props) => {
             style={styles.mainPanel}
           >
             <Input
-              value={taskText || ""}
+              value={taskText ?? ""}
               onChangeText={(text) => setTaskText(text)}
               placeholder={"What needs to be done?"}
             />
@@ -197,11 +215,11 @@ const NewTaskModal = (props) => {
             <ActionButton
               style={styles.button}
               onPress={() =>
-                handleAddTask({
-                  id: new Date().toISOString(),
+                handleTask({
+                  id: editMode ? editingTask.id : new Date().toISOString(),
                   text: taskText,
                   description: taskDescription,
-                  isCompleted: false,
+                  isCompleted: editMode ? editingTask.isCompleted : false,
                   priority: priority,
                   timer: timer,
                   timerDuration:
@@ -291,7 +309,6 @@ const styles = StyleSheet.create({
   },
   cell: {
     width: "48%",
-    // height: 40,
     justifyContent: "center",
   },
   defaultButtonText: {
@@ -329,4 +346,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default NewTaskModal;
+export default TaskModal;

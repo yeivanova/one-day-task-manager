@@ -20,7 +20,7 @@ import { mockData } from "../mockData";
 import * as SplashScreen from "expo-splash-screen";
 import * as Font from "expo-font";
 import Header from "../components/Header";
-import NewTaskModal from "./NewTaskModal";
+import TaskModal from "./TaskModal";
 import TaskItem from "../components/TaskItem";
 import ControlPanel from "../components/ControlPanel";
 import ActionButton from "../components/ActionButton";
@@ -51,6 +51,8 @@ export default function Main() {
   const [modalIsVisible, setModalIsVisible] = useState(false);
   const [tasks, setTasks] = useState(mockData);
   const [tasksList, setTasksList] = useState(tasks);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingTask, setEditingTask] = useState(undefined);
   const itemRefs = useRef(new Map());
   const [isClearButtonActive, setisClearButtonActive] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
@@ -81,6 +83,18 @@ export default function Main() {
     setModalIsVisible(false);
   };
 
+  const pickTask = (index) => {
+    setEditingTask(tasks.find((task, id) => task.id === index));
+    setIsEditing(true);
+    showModal(true);
+  };
+
+  const dropTask = () => {
+    setEditingTask(undefined);
+    setIsEditing(false);
+    showModal(true);
+  };
+
   const addTask = (task) => {
     if (tasks === null) return;
     setTasks((currentTasks) => [...currentTasks, task]);
@@ -94,6 +108,17 @@ export default function Main() {
     setTasks(tempArr);
     setTasksList(tempArr);
     setisClearButtonActive(tempArr.some((task) => task.isCompleted === true));
+  };
+
+  const editTask = (task) => {
+    if (tasks === null) return;
+    const tempArr = [].concat(tasks);
+    let foundIndex = tempArr.findIndex((x) => x.id == editingTask.id);
+    tempArr[foundIndex] = task;
+    setTasks(tempArr);
+    setTasksList(tempArr);
+    Keyboard.dismiss();
+    hideModal();
   };
 
   const clearCompetedTasks = () => {
@@ -178,6 +203,7 @@ export default function Main() {
             onCheckboxChange={() => setIsCompleted(!item.isCompleted)}
             task={item}
             deleteTask={() => deleteTask(item.id)}
+            pickTask={() => pickTask(item.id)}
             toggleTaskCompleted={toggleTaskCompleted}
           />
         </View>
@@ -249,19 +275,31 @@ export default function Main() {
         </LinearGradient>
       </View>
       <ControlPanel>
-        <ActionButton style={styles.button} onPress={showModal}>
+        <ActionButton
+          style={styles.button}
+          onPress={() => dropTask()}
+        >
           <Image
             style={styles.addIcon}
             source={require("../assets/icons/add.png")}
           />
         </ActionButton>
       </ControlPanel>
-      <NewTaskModal
+      <TaskModal
+        editMode={isEditing}
+        setEditMode={setIsEditing}
         visible={modalIsVisible}
-        tasks={tasks}
         addTask={addTask}
+        editingTask={editingTask}
+        editTask={editTask}
         hideModal={hideModal}
       />
+      {/* <EditTaskModal
+        visible={modalEditTaskIsVisible}
+        task={editingTask}
+        editTask={editTask}
+        hideModal={hideEditTaskModal}
+      /> */}
     </SafeAreaView>
   );
 }

@@ -14,7 +14,7 @@ import { LinearGradient } from "expo-linear-gradient";
 const TaskItem = ({ task, deleteTask, pickTask, toggleTaskCompleted }) => {
   const [modalIsVisible, setModalIsVisible] = useState(false);
   const [descriptionIsVisible, setDescriptionIsVisible] = useState(false);
-  const [repeatCounter, setRepeatCounter] = useState(0);
+  const [repeatCounter, setRepeatCounter] = useState(task.isCompleted ? task.repeat : 0);
 
   let [fontsLoaded] = useFonts({
     RedHatDisplay_400Regular,

@@ -12,13 +12,13 @@ const CheckBox = ({ isCompleted, repeat, onPress, title, repeatCounter }) => {
           isCompleted && styles.checkboxIsActive,
         ]}
       >
-        {isCompleted && repeat === 1 && (
+        {(isCompleted || (repeatCounter === repeat)) && (
           <Image
             style={styles.iconCheck}
             source={require("../assets/icons/check.png")}
           />
         )}
-        {repeatCounter > 0 && (
+        {(repeatCounter > 0) && (repeatCounter < repeat) && (
           <Text style={styles.repeatText}>{repeatCounter}</Text>
         )}
       </View>

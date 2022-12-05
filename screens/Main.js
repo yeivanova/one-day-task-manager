@@ -13,7 +13,6 @@ import {
   Text,
   Image,
   TouchableOpacity,
-  Dimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { mockData } from "../mockData";
@@ -51,13 +50,26 @@ export default function Main() {
   const [appIsReady, setAppIsReady] = useState(false);
   const [modalIsVisible, setModalIsVisible] = useState(false);
   const [tasks, setTasks] = useState(mockData);
-  const [tasksList, setTasksList] = useState(tasks);
+  const [tasksList, setTasksList] = useState(mockData);
   const [isEditing, setIsEditing] = useState(false);
   const [editingTask, setEditingTask] = useState(undefined);
   const itemRefs = useRef(new Map());
   const [isClearButtonActive, setisClearButtonActive] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const [activeTab, setActiveTab] = useState("All");
+
+  const sortTasks = (data) => {
+    const priorityIncompleteData = [...data].filter(task => task.priority === true && task.isCompleted === false);
+    const nonPriorityIncompleteData = [...data].filter(task => task.priority === false && task.isCompleted === false);
+    const completeData = [...data].filter(task => task.isCompleted === true);
+    return [...priorityIncompleteData, ...nonPriorityIncompleteData, ...completeData];
+  };
+
+  useEffect(() => {
+    const sortedTasks = sortTasks(tasks);
+    setTasks(sortedTasks);
+    setTasksList(sortedTasks);
+  }, []);
 
   const setStatusFilter = (tab) => {
     switch (tab) {
@@ -98,8 +110,8 @@ export default function Main() {
 
   const addTask = (task) => {
     if (tasks === null) return;
-    setTasks((currentTasks) => [...currentTasks, task]);
-    setTasksList((currentTasks) => [...currentTasks, task]);
+    setTasks((currentTasks) => sortTasks([...currentTasks, task]));
+    setTasksList((currentTasks) => sortTasks([...currentTasks, task]));
     Keyboard.dismiss();
     hideModal();
   };
@@ -116,8 +128,8 @@ export default function Main() {
     const tempArr = [].concat(tasks);
     let foundIndex = tempArr.findIndex((x) => x.id == editingTask.id);
     tempArr[foundIndex] = task;
-    setTasks(tempArr);
-    setTasksList(tempArr);
+    setTasks(sortTasks(tempArr));
+    setTasksList(sortTasks(tempArr));
     Keyboard.dismiss();
     hideModal();
   };
@@ -140,8 +152,8 @@ export default function Main() {
       return task;
     });
 
-    setTasks(updatedTasks);
-    setTasksList(updatedTasks);
+    setTasks(sortTasks(updatedTasks));
+    setTasksList(sortTasks(updatedTasks));
     setisClearButtonActive(
       updatedTasks.some((task) => task.isCompleted === true)
     );

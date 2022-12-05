@@ -4,10 +4,18 @@ import Colors from "../constants/colors";
 
 const DefaultButton = ({ children, onPress }) => {
   return (
-    <Pressable style={styles.button} onPress={onPress}>
+    <Pressable
+      style={({ pressed }) => [
+        {
+          backgroundColor: pressed ? Colors.inActiveText : Colors.background,
+        },
+        styles.button,
+      ]}
+      onPress={onPress}
+    >
       {children}
     </Pressable>
-  )
+  );
 };
 
 const styles = StyleSheet.create({
@@ -19,11 +27,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 13,
     paddingVertical: 9,
     borderRadius: 4,
-    backgroundColor: Colors.background,
     shadowColor: Colors.primary,
     shadowOpacity: 0.12,
     shadowRadius: 3,
-  }
+  },
 });
 
 export default DefaultButton;

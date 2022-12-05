@@ -15,6 +15,7 @@ import ActionButton from "../components/ActionButton";
 import DefaultButton from "../components/DefaultButton";
 import Input from "../components/Input";
 import NumberInput from "../components/NumberInput";
+import Counter from "../components/Counter";
 import Colors from "../constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
@@ -34,6 +35,7 @@ const TaskModal = ({ editMode, setEditMode, visible, addTask, editingTask, editT
   const [timer, setTimer] = useState(false);
   const [timerDurationMinutes, setTimerDurationMinutes] = useState(0);
   const [timerDurationSeconds, setTimerDurationSeconds] = useState(0);
+  const [repeat, setRepeat] = useState(1);
 
   useEffect(() => {
     if (editMode && editingTask) {
@@ -43,6 +45,7 @@ const TaskModal = ({ editMode, setEditMode, visible, addTask, editingTask, editT
       setTimer(editingTask.timer ?? "");
       setTimerDurationMinutes(editingTask.timerDuration ? Math.floor(editingTask.timerDuration / 60).toString() : "0");
       setTimerDurationSeconds(editingTask.timerDuration ? (editingTask.timerDuration % 60).toString() : "0");
+      setRepeat(editingTask.repeat ? editingTask.repeat : 1);
     }
   }, [editingTask, editMode, visible]);
 
@@ -64,6 +67,7 @@ const TaskModal = ({ editMode, setEditMode, visible, addTask, editingTask, editT
     setTimer(false);
     setTimerDurationMinutes(0);
     setTimerDurationSeconds(0);
+    setRepeat(1);
   }
 
   const handleTask = (task) => {
@@ -181,6 +185,14 @@ const TaskModal = ({ editMode, setEditMode, visible, addTask, editingTask, editT
               }
               placeholder={"Details"}
             />
+            <View style={styles.repeatContainer}>
+              <Image
+                  style={styles.repeatIcon}
+                  source={require("../assets/icons/repeat.png")}
+                />
+                <Text style={styles.repeatText}>How many times repeat?</Text>
+                <Counter value={repeat} setValue={setRepeat} />
+            </View>
           </LinearGradient>
           <ControlPanel>
             <ActionButton
@@ -195,7 +207,7 @@ const TaskModal = ({ editMode, setEditMode, visible, addTask, editingTask, editT
                   timer: timer,
                   timerDuration:
                     timerDurationMinutes * 60 + timerDurationSeconds,
-                  repeat: 1,
+                  repeat: repeat,
                 })
               }
               isDisabled={!taskText}
@@ -228,7 +240,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: Colors.border,
-    borderRadius: 20,
     shadowColor: Colors.background,
     shadowOpacity: 0.36,
     shadowOffset: {
@@ -316,6 +327,23 @@ const styles = StyleSheet.create({
     width: 15.5,
     height: 15,
   },
+  repeatContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    marginTop: 5
+  },
+  repeatIcon: {
+    width: 14,
+    height: 14,
+    marginRight: 10,
+  },
+  repeatText: {
+    fontSize: 12,
+    fontFamily: "RedHatDisplay_400Regular",
+    color: Colors.inputText,
+    marginEnd: 22
+  }
 });
 
 export default TaskModal;

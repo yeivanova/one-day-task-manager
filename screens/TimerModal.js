@@ -8,7 +8,7 @@ import {
   Modal,
   Pressable,
 } from "react-native";
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ControlPanel from "../components/ControlPanel";
 import Header from "../components/Header";
 import ActionButton from "../components/ActionButton";
@@ -25,11 +25,11 @@ import {
 import { useClock } from "react-native-timer-hooks";
 import CircularProgress from "react-native-circular-progress-indicator";
 
-const TimerModal = (props) => {
+const TimerModal = ({ visible, task, hideModal, completeTask }) => {
   const insets = useSafeAreaInsets();
   const [counter, start, pause, reset, isRunning] = useClock({
     from: 0,
-    to: props.task.timerDuration,
+    to: task.timerDuration,
     stopOnFinish: true,
   });
 
@@ -37,7 +37,7 @@ const TimerModal = (props) => {
   const progressRef = useRef(null);
 
   const isCountdownFinish = useCallback(() => {
-    return !isRunning && counter === props.task.timerDuration;
+    return !isRunning && counter === task.timerDuration;
   }, [isRunning, counter]);
 
   let [fontsLoaded] = useFonts({
@@ -53,7 +53,7 @@ const TimerModal = (props) => {
   }
 
   const handleCancelTimer = () => {
-    props.hideModal();
+    hideModal();
     pause();
     reset();
     setValue(0);
@@ -63,9 +63,17 @@ const TimerModal = (props) => {
     new Date(counter * 1000).toISOString().slice(14, 19);
 
   return (
-    <Modal visible={props.visible} animationType="fade">
-      <View style={[{ paddingTop: insets.top, paddingBottom: insets.bottom}, styles.page]}>
-        <Pressable style={[{paddingTop: insets.top}, styles.cancel]} onPress={handleCancelTimer}>
+    <Modal visible={visible} animationType="fade">
+      <View
+        style={[
+          { paddingTop: insets.top, paddingBottom: insets.bottom },
+          styles.page,
+        ]}
+      >
+        <Pressable
+          style={[{ paddingTop: insets.top }, styles.cancel]}
+          onPress={handleCancelTimer}
+        >
           <Image
             style={styles.backIcon}
             source={require("../assets/icons/back.png")}
@@ -78,8 +86,8 @@ const TimerModal = (props) => {
           locations={[0.0413, 0.26]}
           style={styles.mainPanel}
         >
-          <Text style={styles.taskText}>{props.task.text}</Text>
-          <View style={styles.timerContainer}>
+          <View style={styles.timerWrapper}>
+            <Text style={styles.taskText}>{task.text}</Text>
             <ImageBackground
               source={require("../assets/images/timer-bg.png")}
               style={styles.bgImage}
@@ -96,7 +104,7 @@ const TimerModal = (props) => {
                   activeStrokeColor={Colors.primary}
                   inActiveStrokeColor={"transparent"}
                   inActiveStrokeOpacity={0.5}
-                  duration={props.task.timerDuration * 1000 + 1000}
+                  duration={task.timerDuration * 1000 + 1000}
                   onAnimationComplete={() => {
                     console.log("timer finished");
                   }}
@@ -125,7 +133,7 @@ const TimerModal = (props) => {
                 start();
               }
               if (!isRunning & isCountdownFinish()) {
-                props.toggleTaskCompleted(props.task.id);
+                completeTask();
                 handleCancelTimer();
               }
             }}
@@ -169,7 +177,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: Colors.border,
-    borderRadius: 20,
     shadowColor: Colors.background,
     shadowOpacity: 0.36,
     shadowOffset: {
@@ -206,6 +213,7 @@ const styles = StyleSheet.create({
     lineHeight: 21,
     fontFamily: "RedHatDisplay_400Regular",
     textAlign: "center",
+    marginBottom: 29,
   },
   buttonText: {
     alignSelf: "center",
@@ -230,6 +238,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    paddingBottom: 29,
   },
   timerContainer: {
     flex: 1,

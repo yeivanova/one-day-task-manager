@@ -6,6 +6,7 @@ import {
   RedHatDisplay_400Regular,
 } from "@expo-google-fonts/red-hat-display";
 import TimerModal from "../screens/TimerModal";
+import CheckBox from "./CheckBox";
 import Colors from "../constants/colors";
 import Animated, { LightSpeedOutRight, Layout } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
@@ -13,6 +14,8 @@ import { LinearGradient } from "expo-linear-gradient";
 const TaskItem = ({ task, deleteTask, pickTask, toggleTaskCompleted }) => {
   const [modalIsVisible, setModalIsVisible] = useState(false);
   const [descriptionIsVisible, setDescriptionIsVisible] = useState(false);
+  const [repeatCounter, setRepeatCounter] = useState(0);
+
   let [fontsLoaded] = useFonts({
     RedHatDisplay_400Regular,
   });
@@ -29,6 +32,20 @@ const TaskItem = ({ task, deleteTask, pickTask, toggleTaskCompleted }) => {
     setModalIsVisible(true);
   };
 
+  const completeTask = () => {
+    if (task.repeat > 1 && repeatCounter < task.repeat) {
+      setRepeatCounter(repeatCounter + 1);
+      if (repeatCounter === task.repeat - 1) {
+        toggleTaskCompleted();
+      }
+    } else {
+      toggleTaskCompleted();
+    }
+    if (repeatCounter === task.repeat) {
+      setRepeatCounter(0);
+    }
+  };
+
   return (
     <Animated.View
       style={styles.container}
@@ -37,22 +54,13 @@ const TaskItem = ({ task, deleteTask, pickTask, toggleTaskCompleted }) => {
     >
       <View style={styles.taskContainerWrapper}>
         <View style={styles.taskContainer}>
-          <Checkbox
-            style={styles.checkbox}
-            color={task.isCompleted ? Colors.primary : undefined}
-            value={task.isCompleted}
-            onValueChange={() => toggleTaskCompleted(task.id)}
+          <CheckBox
+            isCompleted={task.isCompleted}
+            repeat={task.repeat}
+            onPress={completeTask}
+            title={task.text}
+            repeatCounter={repeatCounter}
           />
-          <Pressable
-            style={styles.taskTextWrapper}
-            onPress={() => toggleTaskCompleted(task.id)}
-          >
-            <Text
-              style={[styles.task, task.isCompleted && styles.taskCompleted]}
-            >
-              {task.text}
-            </Text>
-          </Pressable>
           <View style={styles.iconsContainer}>
             {task.timer && (
               <Pressable
@@ -69,6 +77,15 @@ const TaskItem = ({ task, deleteTask, pickTask, toggleTaskCompleted }) => {
                 />
               </Pressable>
             )}
+            {task.repeat > 1 && (
+              <Image
+                style={[
+                  styles.repeatIcon,
+                  task.isCompleted && styles.iconIsInactive,
+                ]}
+                source={require("../assets/icons/repeat.png")}
+              />
+            )}
             {task.priority && (
               <Image
                 style={[
@@ -81,7 +98,8 @@ const TaskItem = ({ task, deleteTask, pickTask, toggleTaskCompleted }) => {
           </View>
         </View>
         {task.description && descriptionIsVisible && (
-          <LinearGradient style={styles.taskDescriptionContainer}
+          <LinearGradient
+            style={styles.taskDescriptionContainer}
             colors={[Colors.background, Colors.gradientStart]}
             locations={[0.06, 1]}
           >
@@ -112,7 +130,7 @@ const TaskItem = ({ task, deleteTask, pickTask, toggleTaskCompleted }) => {
         visible={modalIsVisible}
         task={task}
         hideModal={hideTimerModal}
-        toggleTaskCompleted={toggleTaskCompleted}
+        completeTask={completeTask}
       />
     </Animated.View>
   );
@@ -166,7 +184,7 @@ const styles = StyleSheet.create({
   taskCompleted: {
     color: Colors.lightPrimary,
     textDecorationLine: "line-through",
-    opacity: 0.4
+    opacity: 0.4,
   },
   taskDescriptionContainer: {
     paddingTop: 13,
@@ -193,11 +211,18 @@ const styles = StyleSheet.create({
     height: 15,
     marginLeft: 5,
   },
+  repeatIcon: {
+    width: 14,
+    height: 14,
+    marginLeft: 5,
+  },
   iconIsInactive: {
     opacity: 0.5,
   },
   iconsContainer: {
     flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     marginLeft: "auto",
   },
   delete: {

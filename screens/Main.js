@@ -205,7 +205,7 @@ export default function Main() {
             task={item}
             deleteTask={() => deleteTask(item.id)}
             pickTask={() => pickTask(item.id)}
-            toggleTaskCompleted={toggleTaskCompleted}
+            toggleTaskCompleted={() => toggleTaskCompleted(item.id)}
           />
         </View>
       </TouchableOpacity>
@@ -276,10 +276,7 @@ export default function Main() {
         </LinearGradient>
       </View>
       <ControlPanel>
-        <ActionButton
-          style={styles.button}
-          onPress={() => dropTask()}
-        >
+        <ActionButton style={styles.button} onPress={() => dropTask()}>
           <Image
             style={styles.addIcon}
             source={require("../assets/icons/add.png")}
@@ -329,7 +326,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: Colors.border,
-    borderRadius: 20,
     shadowColor: Colors.background,
     shadowOpacity: 0.36,
     shadowOffset: {

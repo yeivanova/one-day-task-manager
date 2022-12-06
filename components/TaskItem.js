@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, Image, View, Pressable } from "react-native";
-import Checkbox from "expo-checkbox";
 import {
   useFonts,
   RedHatDisplay_400Regular,
@@ -8,13 +7,61 @@ import {
 import TimerModal from "../screens/TimerModal";
 import CheckBox from "./CheckBox";
 import Colors from "../constants/colors";
-import Animated, { LightSpeedOutRight, Layout } from "react-native-reanimated";
+import Animated, {
+  LightSpeedOutRight,
+  Layout,
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  Easing,
+} from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
+import GestureRecognizer from "react-native-swipe-gestures";
 
-const TaskItem = ({ task, deleteTask, pickTask, toggleTaskCompleted }) => {
+const TaskItem = ({
+  task,
+  orderNumber,
+  deleteTask,
+  pickTask,
+  toggleTaskCompleted,
+  detailsAreVisible,
+  setDetailsAreVisible,
+}) => {
   const [modalIsVisible, setModalIsVisible] = useState(false);
   const [descriptionIsVisible, setDescriptionIsVisible] = useState(false);
-  const [repeatCounter, setRepeatCounter] = useState(task.isCompleted ? task.repeat : 0);
+  const [repeatCounter, setRepeatCounter] = useState(
+    task.isCompleted ? task.repeat : 0
+  );
+
+  const offset = useSharedValue(0);
+  const animatedStyles = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateX: offset.value }],
+    };
+  });
+
+  const toggleDetails = () => {
+    offset.value = withTiming(offset.value < 0 ? 0 : -65, {
+      duration: 250,
+      easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+    });
+    const tempArr = [].concat(detailsAreVisible);
+    if (offset.value < 0) {
+      tempArr[orderNumber] = false;
+    } else {
+      tempArr[orderNumber] = true;
+    }
+    setDetailsAreVisible(tempArr);
+  };
+
+  useEffect(() => {
+    if (detailsAreVisible[orderNumber] === false) {
+      offset.value = withTiming(0, {
+        duration: 250,
+        easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+      });
+    }
+  }, [detailsAreVisible[orderNumber]]);
 
   let [fontsLoaded] = useFonts({
     RedHatDisplay_400Regular,
@@ -46,107 +93,137 @@ const TaskItem = ({ task, deleteTask, pickTask, toggleTaskCompleted }) => {
     }
   };
 
+  const swipeLeft = () => {
+    offset.value = withTiming(offset.value > 0 ? 0 : -65, {
+      duration: 350,
+      easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+    });
+  };
+
+  const swipeRight = () => {
+    offset.value = withTiming(0, {
+      duration: 250,
+      easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+    });
+  };
+
   return (
-    <Animated.View
-      style={styles.container}
-      exiting={LightSpeedOutRight}
-      layout={Layout.springify()}
+    <GestureRecognizer
+      onSwipeLeft={() => swipeLeft()}
+      onSwipeRight={() => swipeRight()}
     >
-      <View style={styles.taskContainerWrapper}>
-        <View style={styles.taskContainer}>
-          <CheckBox
-            isCompleted={task.isCompleted}
-            repeat={task.repeat}
-            onPress={completeTask}
-            title={task.text}
-            repeatCounter={repeatCounter}
-          />
-          <View style={styles.iconsContainer}>
-            {task.timer && (
-              <Pressable
-                style={styles.showTimerModal}
-                onPress={showTimerModal}
-                disabled={task.isCompleted}
-              >
+      <Animated.View
+        style={styles.container}
+        exiting={LightSpeedOutRight}
+        layout={Layout.springify()}
+      >
+        <View style={styles.buttons}>
+          <Pressable style={styles.delete} onPress={() => deleteTask()}>
+            <Image
+              style={styles.deleteIcon}
+              source={require("../assets/icons/delete.png")}
+            />
+          </Pressable>
+          <Pressable style={styles.edit} onPress={pickTask}>
+            <Image
+              style={styles.editIcon}
+              source={require("../assets/icons/edit.png")}
+            />
+          </Pressable>
+        </View>
+        <Animated.View style={[styles.taskContainerWrapper, animatedStyles]}>
+          <View style={styles.taskContainer}>
+            <CheckBox
+              isCompleted={task.isCompleted}
+              repeat={task.repeat}
+              onPress={completeTask}
+              title={task.text}
+              repeatCounter={repeatCounter}
+            />
+            <View style={styles.iconsContainer}>
+              {task.timer && (
+                <Pressable
+                  style={styles.showTimerModal}
+                  onPress={showTimerModal}
+                  disabled={task.isCompleted}
+                >
+                  <Image
+                    style={[
+                      styles.timerIcon,
+                      task.isCompleted && styles.iconIsInactive,
+                    ]}
+                    source={require("../assets/icons/timer_icon.png")}
+                  />
+                </Pressable>
+              )}
+              {task.repeat > 1 && (
                 <Image
                   style={[
-                    styles.timerIcon,
+                    styles.repeatIcon,
                     task.isCompleted && styles.iconIsInactive,
                   ]}
-                  source={require("../assets/icons/timer_icon.png")}
+                  source={require("../assets/icons/repeat.png")}
+                />
+              )}
+              {task.priority && (
+                <Image
+                  style={[
+                    styles.priorityIcon,
+                    task.isCompleted && styles.iconIsInactive,
+                  ]}
+                  source={require("../assets/icons/priority.png")}
+                />
+              )}
+              <Pressable style={styles.details} onPress={() => toggleDetails()}>
+                <Image
+                  style={styles.detailsIcon}
+                  source={require("../assets/icons/details.png")}
                 />
               </Pressable>
-            )}
-            {task.repeat > 1 && (
-              <Image
-                style={[
-                  styles.repeatIcon,
-                  task.isCompleted && styles.iconIsInactive,
-                ]}
-                source={require("../assets/icons/repeat.png")}
-              />
-            )}
-            {task.priority && (
-              <Image
-                style={[
-                  styles.priorityIcon,
-                  task.isCompleted && styles.iconIsInactive,
-                ]}
-                source={require("../assets/icons/priority.png")}
-              />
-            )}
+            </View>
           </View>
-        </View>
-        {task.description && descriptionIsVisible && (
-          <LinearGradient
-            style={styles.taskDescriptionContainer}
-            colors={[Colors.background, Colors.gradientStart]}
-            locations={[0.06, 1]}
-          >
-            <Text
-              style={[
-                styles.taskDescriptionText,
-                task.isCompleted && styles.taskCompleted,
-              ]}
+          {task.description && descriptionIsVisible && (
+            <LinearGradient
+              style={styles.taskDescriptionContainer}
+              colors={[Colors.background, Colors.gradientStart]}
+              locations={[0.06, 1]}
             >
-              {task.description}
-            </Text>
-          </LinearGradient>
-        )}
-      </View>
-      <Pressable style={styles.delete} onPress={() => deleteTask()}>
-        <Image
-          style={styles.deleteIcon}
-          source={require("../assets/icons/delete.png")}
+              <Text
+                style={[
+                  styles.taskDescriptionText,
+                  task.isCompleted && styles.taskCompleted,
+                ]}
+              >
+                {task.description}
+              </Text>
+            </LinearGradient>
+          )}
+        </Animated.View>
+        <TimerModal
+          visible={modalIsVisible}
+          task={task}
+          hideModal={hideTimerModal}
+          completeTask={completeTask}
         />
-      </Pressable>
-      <Pressable style={styles.edit} onPress={pickTask}>
-        <Image
-          style={styles.editIcon}
-          source={require("../assets/icons/edit.png")}
-        />
-      </Pressable>
-      <TimerModal
-        visible={modalIsVisible}
-        task={task}
-        hideModal={hideTimerModal}
-        completeTask={completeTask}
-      />
-    </Animated.View>
+      </Animated.View>
+    </GestureRecognizer>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     width: "100%",
+    flex: 1,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "top",
+    paddingHorizontal: 30,
   },
   taskContainerWrapper: {
     flex: 1,
   },
   taskContainer: {
+    position: "relative",
     minHeight: 33,
     flex: 1,
     flexDirection: "row",
@@ -163,6 +240,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 3,
     borderRadius: 4,
+    zIndex: 1,
   },
   checkbox: {
     width: 16,
@@ -225,6 +303,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginLeft: "auto",
   },
+  buttons: {
+    flexDirection: "row",
+    position: "absolute",
+    right: 30,
+    zIndex: 0,
+  },
   delete: {
     width: 26,
     height: 26,
@@ -252,6 +336,14 @@ const styles = StyleSheet.create({
   editIcon: {
     width: 10.5,
     height: 10,
+  },
+  details: {
+    padding: 5,
+    marginLeft: 6,
+  },
+  detailsIcon: {
+    width: 2.5,
+    height: 9,
   },
 });
 

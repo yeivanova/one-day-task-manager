@@ -13,6 +13,7 @@ import {
   Text,
   Image,
   TouchableOpacity,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { mockData } from "../mockData";
@@ -57,12 +58,21 @@ export default function Main() {
   const [isClearButtonActive, setisClearButtonActive] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const [activeTab, setActiveTab] = useState("All");
+  const [detailsAreVisible, setDetailsAreVisible] = useState(new Array(tasks.length).fill(false));
 
   const sortTasks = (data) => {
-    const priorityIncompleteData = [...data].filter(task => task.priority === true && task.isCompleted === false);
-    const nonPriorityIncompleteData = [...data].filter(task => task.priority === false && task.isCompleted === false);
-    const completeData = [...data].filter(task => task.isCompleted === true);
-    return [...priorityIncompleteData, ...nonPriorityIncompleteData, ...completeData];
+    const priorityIncompleteData = [...data].filter(
+      (task) => task.priority === true && task.isCompleted === false
+    );
+    const nonPriorityIncompleteData = [...data].filter(
+      (task) => task.priority === false && task.isCompleted === false
+    );
+    const completeData = [...data].filter((task) => task.isCompleted === true);
+    return [
+      ...priorityIncompleteData,
+      ...nonPriorityIncompleteData,
+      ...completeData,
+    ];
   };
 
   useEffect(() => {
@@ -94,6 +104,7 @@ export default function Main() {
 
   const hideModal = () => {
     setModalIsVisible(false);
+    hideDetails();
   };
 
   const pickTask = (index) => {
@@ -202,6 +213,10 @@ export default function Main() {
     ? require("../assets/icons/clear.png")
     : require("../assets/icons/clear-inactive.png");
 
+  const hideDetails = () => {
+    setDetailsAreVisible(new Array(tasks.length).fill(false));
+  };
+
   const renderItem = ({ item, drag, isActive }) => {
     return (
       <TouchableOpacity
@@ -215,9 +230,12 @@ export default function Main() {
             itemRefs={itemRefs}
             onCheckboxChange={() => setIsCompleted(!item.isCompleted)}
             task={item}
+            orderNumber={tasks.findIndex((el) => el.id === item.id)}
             deleteTask={() => deleteTask(item.id)}
             pickTask={() => pickTask(item.id)}
             toggleTaskCompleted={() => toggleTaskCompleted(item.id)}
+            detailsAreVisible={detailsAreVisible}
+            setDetailsAreVisible={setDetailsAreVisible}
           />
         </View>
       </TouchableOpacity>
@@ -225,92 +243,91 @@ export default function Main() {
   };
 
   return (
-    <SafeAreaView style={styles.page} onLayout={onLayout}>
-      <Header text="list" />
-      <View style={styles.container}>
-        <View style={styles.tabsContainer}>
-          {tabsList.map((tab, index) => (
-            <Pressable
-              style={[styles.tab, activeTab === tab.text && styles.tabIsActive]}
-              key={index}
-              onPress={() => setStatusFilter(tab.text)}
-            >
-              <Text
+    <TouchableWithoutFeedback onPress={hideDetails} style={styles.main}>
+      <SafeAreaView style={styles.page} onLayout={onLayout}>
+        <Header text="list" />
+        <View style={styles.container}>
+          <View style={styles.tabsContainer}>
+            {tabsList.map((tab, index) => (
+              <Pressable
                 style={[
-                  styles.tabText,
-                  activeTab === tab.text && styles.tabIsActiveText,
+                  styles.tab,
+                  activeTab === tab.text && styles.tabIsActive,
                 ]}
+                key={index}
+                onPress={() => setStatusFilter(tab.text)}
               >
-                {tab.text}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-        <LinearGradient
-          colors={[Colors.background, Colors.gradientStart]}
-          locations={[0.0413, 0.26]}
-          style={styles.mainPanel}
-        >
-          <View style={styles.clearContainer}>
-            <Pressable
-              style={styles.clearCompetedButton}
-              onPress={clearCompetedTasks}
-              disabled={!isClearButtonActive}
-            >
-              <Text
-                style={[
-                  styles.clearCompetedText,
-                  isClearButtonActive && styles.clearCompetedButtonActive,
-                ]}
-              >
-                Clear completed
-              </Text>
-              <Image style={styles.clearIcon} source={clearIcon} />
-            </Pressable>
-            <Text style={styles.itemsCount}>
-              {tasks.filter((task) => !task.isCompleted).length} items left
-            </Text>
+                <Text
+                  style={[
+                    styles.tabText,
+                    activeTab === tab.text && styles.tabIsActiveText,
+                  ]}
+                >
+                  {tab.text}
+                </Text>
+              </Pressable>
+            ))}
           </View>
-          <DraggableFlatList
-            ref={ref}
-            onRef={(ref) => {
-              flatListRef.current = ref;
-            }}
-            data={tasksList}
-            onDragEnd={({ data }) => {
-              setTasks(data);
-              setTasksList(data);
-            }}
-            renderItem={renderItem}
-            alwaysBounceVertical={false}
-            keyExtractor={(item, index) => item.id}
-          />
-        </LinearGradient>
-      </View>
-      <ControlPanel>
-        <ActionButton style={styles.button} onPress={() => dropTask()}>
-          <Image
-            style={styles.addIcon}
-            source={require("../assets/icons/add.png")}
-          />
-        </ActionButton>
-      </ControlPanel>
-      <TaskModal
-        editMode={isEditing}
-        setEditMode={setIsEditing}
-        visible={modalIsVisible}
-        addTask={addTask}
-        editingTask={editingTask}
-        editTask={editTask}
-        hideModal={hideModal}
-      />
-      {/* <EditTaskModal
-        visible={modalEditTaskIsVisible}
-        task={editingTask}
-        editTask={editTask}
-        hideModal={hideEditTaskModal}
-      /> */}
-    </SafeAreaView>
+          <LinearGradient
+            colors={[Colors.background, Colors.gradientStart]}
+            locations={[0.0413, 0.26]}
+            style={styles.mainPanel}
+          >
+            <View style={styles.clearContainer}>
+              <Pressable
+                style={styles.clearCompetedButton}
+                onPress={clearCompetedTasks}
+                disabled={!isClearButtonActive}
+              >
+                <Text
+                  style={[
+                    styles.clearCompetedText,
+                    isClearButtonActive && styles.clearCompetedButtonActive,
+                  ]}
+                >
+                  Clear completed
+                </Text>
+                <Image style={styles.clearIcon} source={clearIcon} />
+              </Pressable>
+              <Text style={styles.itemsCount}>
+                {tasks.filter((task) => !task.isCompleted).length} items left
+              </Text>
+            </View>
+            <DraggableFlatList
+              ref={ref}
+              onRef={(ref) => {
+                flatListRef.current = ref;
+              }}
+              data={tasksList}
+              onDragEnd={({ data }) => {
+                setTasks(data);
+                setTasksList(data);
+              }}
+              renderItem={renderItem}
+              alwaysBounceVertical={false}
+              keyExtractor={(item, index) => item.id}
+            />
+          </LinearGradient>
+        </View>
+        <ControlPanel>
+          <ActionButton style={styles.button} onPress={() => dropTask()}>
+            <Image
+              style={styles.addIcon}
+              source={require("../assets/icons/add.png")}
+            />
+          </ActionButton>
+        </ControlPanel>
+        <TaskModal
+          editMode={isEditing}
+          setEditMode={setIsEditing}
+          visible={modalIsVisible}
+          addTask={addTask}
+          editingTask={editingTask}
+          editTask={editTask}
+          hideModal={hideModal}
+        />
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -334,7 +351,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-start",
     alignContent: "stretch",
-    padding: 30,
+    paddingVertical: 30,
     borderRadius: 20,
     borderWidth: 1,
     borderColor: Colors.border,
@@ -378,6 +395,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignContent: "center",
+    paddingLeft: 30,
     marginBottom: 14,
   },
   clearCompetedButton: {
@@ -412,6 +430,7 @@ const styles = StyleSheet.create({
     textShadowColor: Colors.textShadow,
     textShadowOffset: { width: -0.3, height: -0.3 },
     textShadowRadius: 0.5,
+    paddingRight: 30,
   },
   addIcon: {
     width: 18.5,

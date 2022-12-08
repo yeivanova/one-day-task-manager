@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { StyleSheet, Text, View, Image, Pressable } from "react-native";
 import Colors from "../constants/colors";
 
-const CheckBox = ({ isCompleted, repeat, onPress, title, repeatCounter }) => {
+const CheckBox = ({ highLighted, isCompleted, repeat, onPress, title, repeatCounter }) => {
   return (
     <Pressable style={styles.container} onPress={onPress}>
       <View
@@ -10,6 +10,7 @@ const CheckBox = ({ isCompleted, repeat, onPress, title, repeatCounter }) => {
           styles.checkbox,
           repeatCounter > 0 && styles.checkboxIsRepeated,
           isCompleted && styles.checkboxIsActive,
+          highLighted && styles.highLighted
         ]}
       >
         {(isCompleted || (repeatCounter === repeat)) && (
@@ -22,7 +23,7 @@ const CheckBox = ({ isCompleted, repeat, onPress, title, repeatCounter }) => {
           <Text style={styles.repeatText}>{repeatCounter}</Text>
         )}
       </View>
-      <Text style={[styles.task, isCompleted && styles.taskCompleted]}>
+      <Text style={[styles.task, isCompleted && styles.taskCompleted, highLighted && styles.highLightedTask]}>
         {title}
       </Text>
     </Pressable>
@@ -53,6 +54,10 @@ const styles = StyleSheet.create({
   checkboxIsActive: {
     backgroundColor: Colors.primary,
   },
+  highLighted: {
+    borderColor: Colors.background,
+    backgroundColor: Colors.background
+  },
   task: {
     maxWidth: "80%",
     color: Colors.text,
@@ -64,6 +69,9 @@ const styles = StyleSheet.create({
     color: Colors.lightPrimary,
     textDecorationLine: "line-through",
     opacity: 0.4,
+  },
+  highLightedTask: {
+    color: Colors.background
   },
   iconCheck: {
     width: 9.5,

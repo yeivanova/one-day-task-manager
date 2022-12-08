@@ -36,15 +36,13 @@ const ActionButton = ({ children, onPress, isDisabled }) => {
 
 const styles = StyleSheet.create({
   button: {
-    flex: 1,
     height: 48,
     width: 48,
     alignItems: "center",
     justifyContent: "center",
-    position: "absolute",
     backgroundColor: Colors.primary,
     borderRadius: 24,
-    bottom: 20,
+    marginTop: -24
   },
   pressed: {
     opacity: 0.9

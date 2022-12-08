@@ -6,7 +6,7 @@ import {
 } from "@expo-google-fonts/red-hat-display";
 import Colors from "../constants/colors";
 
-const Header = ({ text }) => {
+const Header = ({ text, children }) => {
   let [fontsLoaded] = useFonts({
     RedHatDisplay_700Bold,
   });
@@ -21,17 +21,20 @@ const Header = ({ text }) => {
         source={require("../assets/images/logo.png")}
       />
       <Text style={styles.headline}>{text}</Text>
+      {children}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    position: "relative",
     flexDirection: "row",
     justifyContent: "center",
     alignContent: "center",
     paddingTop: 62,
     paddingBottom: 40,
+    zIndex: 0
   },
   logo: {
     width: 72,

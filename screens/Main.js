@@ -44,6 +44,15 @@ import {
   RedHatDisplay_800ExtraBold_Italic,
   RedHatDisplay_900Black_Italic,
 } from "@expo-google-fonts/red-hat-display";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSequence,
+  withTiming,
+  withDelay,
+  Easing,
+} from "react-native-reanimated";
+import { BlurView } from "expo-blur";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -58,7 +67,18 @@ export default function Main() {
   const [isClearButtonActive, setisClearButtonActive] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const [activeTab, setActiveTab] = useState("All");
-  const [detailsAreVisible, setDetailsAreVisible] = useState(new Array(tasks.length).fill(false));
+  const [detailsAreVisible, setDetailsAreVisible] = useState(
+    new Array(tasks.length).fill(false)
+  );
+  const [randomTask, setRandomTask] = useState();
+  const [blurIsVisible, setBlurIsVisible] = useState(false);
+  const opacity = useSharedValue(0);
+
+  const animatedStyles = useAnimatedStyle(() => {
+    return {
+      opacity: opacity.value,
+    };
+  });
 
   const sortTasks = (data) => {
     const priorityIncompleteData = [...data].filter(
@@ -217,6 +237,34 @@ export default function Main() {
     setDetailsAreVisible(new Array(tasks.length).fill(false));
   };
 
+  const shuffleTasks = () => {};
+
+  const highLightRandomTask = () => {
+    const inCompleteTasksLength = [
+      ...tasks.filter((task) => task.isCompleted === false),
+    ].length;
+    if (inCompleteTasksLength > 0) {
+      const randomTask =
+        tasks[Math.floor(Math.random() * inCompleteTasksLength)];
+      setRandomTask(randomTask);
+      setBlurIsVisible(true);
+      let blurTimer = setTimeout(() => setBlurIsVisible(false), 2600);
+      opacity.value = withSequence(
+        withTiming(1, {
+          duration: 800,
+          easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+        }),
+        withDelay(
+          1800,
+          withTiming(0, {
+            duration: 800,
+            easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+          })
+        )
+      );
+    }
+  };
+
   const renderItem = ({ item, drag, isActive }) => {
     return (
       <TouchableOpacity
@@ -225,8 +273,21 @@ export default function Main() {
         disabled={isActive}
         style={isActive && styles.draggableItem}
       >
-        <View style={styles.taskContainer}>
+        <View
+          style={[
+            styles.taskContainer,
+            {
+              zIndex:
+                blurIsVisible && randomTask && randomTask.id === item.id
+                  ? 10
+                  : 1,
+            },
+          ]}
+        >
           <TaskItem
+            highLighted={
+              blurIsVisible && randomTask && randomTask.id === item.id
+            }
             itemRefs={itemRefs}
             onCheckboxChange={() => setIsCompleted(!item.isCompleted)}
             task={item}
@@ -238,95 +299,222 @@ export default function Main() {
             setDetailsAreVisible={setDetailsAreVisible}
           />
         </View>
+        <Animated.View
+          style={[
+            styles.blurWrapper,
+            animatedStyles,
+            {
+              zIndex:
+                blurIsVisible && randomTask && randomTask.id !== item.id
+                  ? 1
+                  : -1,
+            },
+          ]}
+        >
+          <BlurView
+            intensity={15}
+            style={[
+              styles.blurView,
+              styles.nonBlurredContent,
+              {
+                zIndex:
+                  blurIsVisible && randomTask && randomTask.id !== item.id
+                    ? 1
+                    : -1,
+              },
+            ]}
+          />
+        </Animated.View>
       </TouchableOpacity>
     );
   };
 
   return (
-    <TouchableWithoutFeedback onPress={hideDetails} style={styles.main}>
-      <SafeAreaView style={styles.page} onLayout={onLayout}>
-        <Header text="list" />
-        <View style={styles.container}>
-          <View style={styles.tabsContainer}>
-            {tabsList.map((tab, index) => (
-              <Pressable
+    <TouchableWithoutFeedback onPress={hideDetails} style={styles.view}>
+        <SafeAreaView style={styles.page} onLayout={onLayout}>
+          <Header text="list">
+            <Animated.View
+              style={[
+                styles.blurWrapper,
+                animatedStyles,
+                {
+                  zIndex: blurIsVisible ? 1 : -1,
+                },
+              ]}
+            >
+              <BlurView
+                intensity={15}
                 style={[
-                  styles.tab,
-                  activeTab === tab.text && styles.tabIsActive,
+                  styles.blurView,
+                  styles.nonBlurredContent,
+                  {
+                    zIndex: blurIsVisible ? 1 : -1,
+                  },
                 ]}
-                key={index}
-                onPress={() => setStatusFilter(tab.text)}
-              >
-                <Text
+              />
+            </Animated.View>
+          </Header>
+          <View style={styles.container}>
+            <View style={styles.tabsContainer}>
+              {tabsList.map((tab, index) => (
+                <Pressable
                   style={[
-                    styles.tabText,
-                    activeTab === tab.text && styles.tabIsActiveText,
+                    styles.tab,
+                    activeTab === tab.text && styles.tabIsActive,
                   ]}
+                  key={index}
+                  onPress={() => setStatusFilter(tab.text)}
                 >
-                  {tab.text}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-          <LinearGradient
-            colors={[Colors.background, Colors.gradientStart]}
-            locations={[0.0413, 0.26]}
-            style={styles.mainPanel}
-          >
-            <View style={styles.clearContainer}>
-              <Pressable
-                style={styles.clearCompetedButton}
-                onPress={clearCompetedTasks}
-                disabled={!isClearButtonActive}
-              >
-                <Text
-                  style={[
-                    styles.clearCompetedText,
-                    isClearButtonActive && styles.clearCompetedButtonActive,
-                  ]}
-                >
-                  Clear completed
-                </Text>
-                <Image style={styles.clearIcon} source={clearIcon} />
-              </Pressable>
-              <Text style={styles.itemsCount}>
-                {tasks.filter((task) => !task.isCompleted).length} items left
-              </Text>
+                  <Text
+                    style={[
+                      styles.tabText,
+                      activeTab === tab.text && styles.tabIsActiveText,
+                    ]}
+                  >
+                    {tab.text}
+                  </Text>
+                </Pressable>
+              ))}
             </View>
-            <DraggableFlatList
-              ref={ref}
-              onRef={(ref) => {
-                flatListRef.current = ref;
-              }}
-              data={tasksList}
-              onDragEnd={({ data }) => {
-                setTasks(data);
-                setTasksList(data);
-              }}
-              renderItem={renderItem}
-              alwaysBounceVertical={false}
-              keyExtractor={(item, index) => item.id}
-            />
-          </LinearGradient>
-        </View>
-        <ControlPanel>
-          <ActionButton style={styles.button} onPress={() => dropTask()}>
-            <Image
-              style={styles.addIcon}
-              source={require("../assets/icons/add.png")}
-            />
-          </ActionButton>
-        </ControlPanel>
-        <TaskModal
-          editMode={isEditing}
-          setEditMode={setIsEditing}
-          visible={modalIsVisible}
-          addTask={addTask}
-          editingTask={editingTask}
-          editTask={editTask}
-          hideModal={hideModal}
-        />
-      </SafeAreaView>
+
+            <LinearGradient
+              colors={[Colors.background, Colors.gradientStart]}
+              locations={[0.0413, 0.26]}
+              style={styles.mainPanel}
+            >
+              <View style={styles.clearContainer}>
+                <Pressable
+                  style={styles.clearCompetedButton}
+                  onPress={clearCompetedTasks}
+                  disabled={!isClearButtonActive}
+                >
+                  <Text
+                    style={[
+                      styles.clearCompetedText,
+                      isClearButtonActive && styles.clearCompetedButtonActive,
+                    ]}
+                  >
+                    Clear completed
+                  </Text>
+                  <Image style={styles.clearIcon} source={clearIcon} />
+                </Pressable>
+                <Text style={styles.itemsCount}>
+                  {tasks.filter((task) => !task.isCompleted).length} items left
+                </Text>
+              </View>
+              <DraggableFlatList
+                style={styles.unBlur}
+                ref={ref}
+                onRef={(ref) => {
+                  flatListRef.current = ref;
+                }}
+                data={tasksList}
+                onDragEnd={({ data }) => {
+                  setTasks(data);
+                  setTasksList(data);
+                }}
+                renderItem={renderItem}
+                alwaysBounceVertical={false}
+                keyExtractor={(item, index) => item.id}
+              />
+            </LinearGradient>
+            <Animated.View
+              style={[
+                styles.blurWrapperBorder,
+                animatedStyles,
+                {
+                  zIndex: blurIsVisible ? 30 : -1,
+                },
+              ]}
+            >
+              <BlurView
+                intensity={15}
+                style={[
+                  styles.blurView,
+                  styles.nonBlurredContent,
+                  {
+                    zIndex: blurIsVisible ? 30 : -1,
+                  },
+                ]}
+              />
+            </Animated.View>
+            <Animated.View
+              style={[
+                styles.blurWrapper,
+                animatedStyles,
+                {
+                  zIndex: blurIsVisible ? 1 : -1,
+                },
+              ]}
+            >
+              <BlurView
+                intensity={15}
+                style={[
+                  styles.blurView,
+                  styles.nonBlurredContent,
+                  {
+                    zIndex: blurIsVisible ? 1 : -1,
+                  },
+                ]}
+              />
+            </Animated.View>
+          </View>
+          <ControlPanel>
+            <View style={styles.controlView}>
+              <Animated.View
+                style={[
+                  styles.blurWrapperBottom,
+                  animatedStyles,
+                  {
+                    zIndex: blurIsVisible ? 1 : -1,
+                  },
+                ]}
+              >
+                <BlurView
+                  tint={"light"}
+                  intensity={15}
+                  style={[
+                    styles.blurView,
+                    {
+                      zIndex: blurIsVisible ? 1 : -1,
+                      opacity: blurIsVisible ? 1 : 0,
+                    },
+                  ]}
+                />
+              </Animated.View>
+              <Pressable style={styles.shuffleButton} onPress={shuffleTasks}>
+                <Image
+                  style={styles.shuffleIcon}
+                  source={require("../assets/icons/shuffle-inactive.png")}
+                />
+              </Pressable>
+              <ActionButton onPress={() => dropTask()}>
+                <Image
+                  style={styles.addIcon}
+                  source={require("../assets/icons/add.png")}
+                />
+              </ActionButton>
+              <Pressable
+                style={styles.diceButton}
+                onPress={highLightRandomTask}
+              >
+                <Image
+                  style={styles.diceIcon}
+                  source={require("../assets/icons/dice-inactive.png")}
+                />
+              </Pressable>
+            </View>
+          </ControlPanel>
+          <TaskModal
+            editMode={isEditing}
+            setEditMode={setIsEditing}
+            visible={modalIsVisible}
+            addTask={addTask}
+            editingTask={editingTask}
+            editTask={editTask}
+            hideModal={hideModal}
+          />
+        </SafeAreaView>
     </TouchableWithoutFeedback>
   );
 }
@@ -337,9 +525,64 @@ const styles = StyleSheet.create({
     alighItems: "center",
     margin: 0,
   },
+  view: {
+    position: "relative",
+    flex: 1,
+    borderWidth: 1,
+    zIndex: 14,
+    backgroundColor: Colors.lightPrimary
+  },
   page: {
     flex: 1,
-    fontFamily: "RedHatDisplay_500Medium",
+  },
+  blurWrapper: {
+    flex: 1,
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "rgba(255, 255, 255, 0.17)",
+  },
+  blurWrapperBorder: {
+    flex: 1,
+    height: 70,
+    position: "absolute",
+    top: 20,
+    left: 0,
+    right: 0,
+  },
+  blurWrapperBottom: {
+    flex: 1,
+    position: "absolute",
+    top: -35,
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  blurView: {
+    flex: 1,
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  blurViewBorder: {
+    flex: 1,
+    height: 40,
+    position: "absolute",
+    top: 20,
+    left: 0,
+    right: 0,
+  },
+  blurViewBottom: {
+    flex: 1,
+    position: "absolute",
+    top: -35,
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
   container: {
     maxWidth: 780,
@@ -362,9 +605,15 @@ const styles = StyleSheet.create({
       height: -10,
     },
     shadowRadius: 20,
+    position: "relative",
+    zIndex: 12,
   },
   taskContainer: {
     padding: 4,
+  },
+  unBlur: {
+    position: "relative",
+    zIndex: 12,
   },
   tabsContainer: {
     flexDirection: "row",
@@ -432,6 +681,14 @@ const styles = StyleSheet.create({
     textShadowRadius: 0.5,
     paddingRight: 30,
   },
+  controlView: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignContent: "center",
+    position: "relative",
+    zIndex: 10,
+  },
   addIcon: {
     width: 18.5,
     height: 18.5,
@@ -448,5 +705,27 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.5,
     shadowRadius: 4,
     borderRadius: 4,
+  },
+  shuffleButton: {
+    width: 50,
+    marginRight: 25,
+    justifyContent: "center",
+    alignContent: "flex-end",
+  },
+  shuffleIcon: {
+    width: 17.5,
+    height: 15,
+    marginHorizontal: 15,
+  },
+  diceButton: {
+    width: 50,
+    marginLeft: 25,
+    justifyContent: "center",
+    alignContent: "center",
+  },
+  diceIcon: {
+    width: 31,
+    height: 27,
+    marginHorizontal: 9,
   },
 });

@@ -26,6 +26,7 @@ const TaskItem = ({
   toggleTaskCompleted,
   detailsAreVisible,
   setDetailsAreVisible,
+  highLighted,
 }) => {
   const [modalIsVisible, setModalIsVisible] = useState(false);
   const [descriptionIsVisible, setDescriptionIsVisible] = useState(false);
@@ -113,7 +114,7 @@ const TaskItem = ({
       onSwipeRight={() => swipeRight()}
     >
       <Animated.View
-        style={styles.container}
+        style={[styles.container, highLighted && styles.highLightedContainer]}
         exiting={LightSpeedOutRight}
         layout={Layout.springify()}
       >
@@ -132,10 +133,14 @@ const TaskItem = ({
           </Pressable>
         </View>
         <Animated.View style={[styles.taskContainerWrapper, animatedStyles]}>
-          <View style={styles.taskContainer}>
+          <View
+            style={[
+              styles.taskContainer,
+              highLighted && styles.highLightedItem,
+            ]}
+          >
             <CheckBox
-              isCompleted={task.isCompleted}
-              repeat={task.repeat}
+              highLighted={highLighted}
               onPress={completeTask}
               title={task.text}
               repeatCounter={repeatCounter}
@@ -241,6 +246,15 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     borderRadius: 4,
     zIndex: 1,
+  },
+  highLightedContainer: {
+    position: "relative",
+    zIndex: 12,
+  },
+  highLightedItem: {
+    backgroundColor: Colors.primary,
+    position: "relative",
+    zIndex: 12,
   },
   checkbox: {
     width: 16,

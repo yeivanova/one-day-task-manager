@@ -144,6 +144,7 @@ const TaskItem = ({
               onPress={completeTask}
               title={task.text}
               repeatCounter={repeatCounter}
+              repeat={task.repeat}
             />
             <View style={styles.iconsContainer}>
               {task.timer && (

@@ -72,6 +72,7 @@ export default function Main() {
   );
   const [randomTask, setRandomTask] = useState();
   const [blurIsVisible, setBlurIsVisible] = useState(false);
+  const [shuffle, setShuffle] = useState(false);
   const opacity = useSharedValue(0);
 
   const animatedStyles = useAnimatedStyle(() => {
@@ -80,13 +81,19 @@ export default function Main() {
     };
   });
 
-  const sortTasks = (data) => {
+  const sortTasks = (data, shuffle = false) => {
     const priorityIncompleteData = [...data].filter(
       (task) => task.priority === true && task.isCompleted === false
     );
     const nonPriorityIncompleteData = [...data].filter(
       (task) => task.priority === false && task.isCompleted === false
     );
+    if (shuffle) {
+      for (let i = nonPriorityIncompleteData.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [nonPriorityIncompleteData[i], nonPriorityIncompleteData[j]] = [nonPriorityIncompleteData[j], nonPriorityIncompleteData[i]];
+      }
+    }
     const completeData = [...data].filter((task) => task.isCompleted === true);
     return [
       ...priorityIncompleteData,
@@ -233,22 +240,36 @@ export default function Main() {
     ? require("../assets/icons/clear.png")
     : require("../assets/icons/clear-inactive.png");
 
+  let diceIcon = blurIsVisible ? require("../assets/icons/dice-active.png") : require("../assets/icons/dice-inactive.png");
+
+  let shuffleIcon = shuffle ? require("../assets/icons/shuffle-active.png") : require("../assets/icons/shuffle-inactive.png");
+
   const hideDetails = () => {
     setDetailsAreVisible(new Array(tasks.length).fill(false));
   };
 
-  const shuffleTasks = () => {};
+  const shuffleTasks = () => {
+    const nonPriorityIncompleteData = tasks.filter(
+      (task) => task.priority === false && task.isCompleted === false
+    );
+    if (nonPriorityIncompleteData.length > 1) {
+      const sortedTasks = sortTasks(tasks, true);
+      setTasks(sortedTasks);
+      setTasksList(sortedTasks);
+    }
+    setShuffle(true);
+    let shuffleTimer = setTimeout(() => setShuffle(false), 2000);
+  };
 
   const highLightRandomTask = () => {
     const inCompleteTasksLength = [
       ...tasks.filter((task) => task.isCompleted === false),
     ].length;
     if (inCompleteTasksLength > 0) {
-      const randomTask =
-        tasks[Math.floor(Math.random() * inCompleteTasksLength)];
+      const randomTask = tasks[Math.floor(Math.random() * inCompleteTasksLength)];
       setRandomTask(randomTask);
       setBlurIsVisible(true);
-      let blurTimer = setTimeout(() => setBlurIsVisible(false), 2600);
+      let blurTimer = setTimeout(() => setBlurIsVisible(false), 3200);
       opacity.value = withSequence(
         withTiming(1, {
           duration: 800,
@@ -485,7 +506,7 @@ export default function Main() {
               <Pressable style={styles.shuffleButton} onPress={shuffleTasks}>
                 <Image
                   style={styles.shuffleIcon}
-                  source={require("../assets/icons/shuffle-inactive.png")}
+                  source={shuffleIcon}
                 />
               </Pressable>
               <ActionButton onPress={() => dropTask()}>
@@ -500,7 +521,7 @@ export default function Main() {
               >
                 <Image
                   style={styles.diceIcon}
-                  source={require("../assets/icons/dice-inactive.png")}
+                  source={diceIcon}
                 />
               </Pressable>
             </View>

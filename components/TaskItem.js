@@ -141,6 +141,7 @@ const TaskItem = ({
           >
             <CheckBox
               highLighted={highLighted}
+              isCompleted={task.isCompleted}
               onPress={completeTask}
               title={task.text}
               repeatCounter={repeatCounter}
